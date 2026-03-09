@@ -1,6 +1,6 @@
-import { PersonalInfo } from "@/components/figma/personal-info"
-import { AddressInfo } from "@/components/figma/address-info"
-import { GovernmentIds } from "@/components/figma/goverment-no"
+import { PersonalInfo } from "@/components/employee-components/personal-info-employee/personal-info"
+import { AddressInfo } from "@/components/employee-components/personal-info-employee/address-info"
+import { GovernmentIds } from "@/components/employee-components/personal-info-employee/goverment-numbers"
 
 export default function Page() {
   return (

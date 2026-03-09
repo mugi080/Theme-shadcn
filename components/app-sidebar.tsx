@@ -30,38 +30,28 @@ const data = {
   user: {
     name: "Jhon Lester Andal",
     email: "jhoncalipay8@gmail.com",
-    avatar: "/avatars/shadcn.jpg",
+    avatar: "/vercel.svg",
   },
   teams: [
 
     {
-      name: "ojt corp.",
+      name: " HRIS LUCENA",
       logo: Command,
-      plan: "Free",
+      plan: "",
     },
     
   ],
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: SquareTerminal,
       isActive: true,
-      items: [
-        {
-          title: "transactions",
-          url: "#",
-        },
-        {
-          title: "history",
-          url: "#",
-        },
 
-      ],
     },
     {
       title: "User Profile",
-      url: "#",
+      url: "/user-profile",
       icon: CircleUser,
       items: [
         {

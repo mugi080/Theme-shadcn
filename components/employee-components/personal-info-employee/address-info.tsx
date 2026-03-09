@@ -1,4 +1,4 @@
-"use client"
+
 
 import { useState } from "react"
 import rawData from "@/data/philippines.json"
@@ -29,7 +29,17 @@ type PhilippinesData = {
 
 const philippines = rawData as PhilippinesData
 
-export function AddressInfo() {
+type Props = {
+  formData: any
+  updateField: (field: string, value: string) => void
+  isEditing: boolean
+}
+
+export default function AddressInfo({
+  formData,
+  updateField,
+  isEditing
+}: Props) {
 
   /* ================= RESIDENTIAL STATE ================= */
 
