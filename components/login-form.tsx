@@ -22,7 +22,7 @@ export function LoginForm({
 
   const router = useRouter()
 
-  const [email, setEmail] = useState("")
+  const [username, setusername] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -32,7 +32,7 @@ export function LoginForm({
     try {
       setLoading(true)
 
-      const data = await login(email, password)
+      const data = await login(username, password)
 
       // store token
       localStorage.setItem("token", data.token)
@@ -41,7 +41,7 @@ export function LoginForm({
       router.push("/dashboard")
 
     } catch (error) {
-      alert("Invalid email or password")
+      alert("Invalid username or password")
     } finally {
       setLoading(false)
     }
@@ -57,18 +57,18 @@ export function LoginForm({
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">Login to your account</h1>
           <p className="text-muted-foreground text-sm">
-            Enter your email below to login to your account
+            Enter your username below to login to your account
           </p>
         </div>
 
         <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
+          <FieldLabel htmlFor="username">username</FieldLabel>
           <Input
-            id="email"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            id="username"
+            type="username"
+            placeholder="Enter your username"
+            value={username}
+            onChange={(e) => setusername(e.target.value)}
             required
           />
         </Field>
