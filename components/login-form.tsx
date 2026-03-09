@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
-import { login } from "@/lib/api/auth"
+import { login } from "@/lib/api/personal-info/auth"
 
 export function LoginForm({
   className,

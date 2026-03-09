@@ -33,7 +33,7 @@ export default function EmployeeLayout({ children }: EmployeeLayoutProps) {
           <Header />
 
           {/* Page Content */}
-          <main className="flex-1 p-6 mt-16">{/* Add top margin equal to header height */}
+          <main className="flex-1 p-6">
             {children}
           </main>
         </SidebarInset>
