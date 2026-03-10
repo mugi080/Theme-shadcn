@@ -2,64 +2,165 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { apiFetch, getToken, getEmployeeId } from "@/lib/api/personal-info/auth"
+import { apiFetch, getToken, getEmployeeId, logout } from "@/lib/api/personal-info/auth"
 
 interface UserInfo {
   firstname: string
   middlename: string
-  lastname: string
+  surname: string
 }
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [user, setUser] = useState<UserInfo | null>(null)
+  const [user, setUser] = useState<UserInfo>({
+    firstname: "",
+    middlename: "",
+    surname: "",
+  })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const employeeId = getEmployeeId()
+  const token = getToken()
 
   useEffect(() => {
-    const token = getToken()
-
-    if (!token) {
-      router.push("/login")
+    if (!token || !employeeId) {
+      logout()
       return
     }
-
-    const employeeId = getEmployeeId()
 
     const fetchUser = async () => {
       try {
         const res = await apiFetch(`/protected/view_employee/${employeeId}`)
         const data = await res.json()
 
-        // adjust depending on backend structure
-        setUser(data.employee)
-      } catch (error) {
-        console.error("Failed to fetch employee:", error)
+        console.log("API RESPONSE:", data)
+
+        if (data.success && data.data) {
+          const emp = data.data
+          setUser({
+            firstname: emp.firstname || "",
+            middlename: emp.middlename || "",
+            surname: emp.surname || "",
+          })
+        } else {
+          setError("Employee data not found")
+        }
+      } catch (err: any) {
+        console.error("Failed to fetch employee:", err)
+        setError(err.message || "Failed to fetch data")
+      } finally {
+        setLoading(false)
       }
     }
 
     fetchUser()
-  }, [router])
+  }, [employeeId, token])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUser({ ...user, [e.target.name]: e.target.value })
+  }
+
+  const handleSave = async () => {
+    if (!employeeId) return
+
+    setSaving(true)
+    try {
+      const res = await apiFetch(`/protected/update_employee/${employeeId}`, {
+        method: "PUT", // use PUT now
+        body: JSON.stringify(user),
+      })
+      const data = await res.json()
+      console.log("PUT RESPONSE:", data)
+      if (data.success) {
+        setEditing(false)
+      } else {
+        setError("Failed to update data")
+      }
+    } catch (err: any) {
+      console.error("Update failed:", err)
+      setError(err.message || "Update failed")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) return <p className="p-4">Loading...</p>
+  if (error) return <p className="p-4 text-red-500">{error}</p>
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
-
       {/* USER INFO */}
-      {user && (
-        <div className="p-4 border rounded-lg">
-          <h2 className="text-lg font-semibold">Employee</h2>
-          <p>
-            {user.firstname} {user.middlename} {user.lastname}
-          </p>
-        </div>
-      )}
+      <div className="p-4 border rounded-lg bg-white/20 backdrop-blur-md">
+        <h2 className="text-lg font-semibold">Employee</h2>
+
+        {!editing ? (
+          <>
+            <p>
+              {user.firstname || "-"} {user.middlename || "-"} {user.surname || "-"}
+            </p>
+            <button
+              className="mt-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={() => setEditing(true)}
+            >
+              Edit
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="flex flex-col gap-2">
+              <input
+                type="text"
+                name="firstname"
+                placeholder="First Name"
+                value={user.firstname}
+                onChange={handleChange}
+                className="border p-2 rounded"
+              />
+              <input
+                type="text"
+                name="middlename"
+                placeholder="Middle Name"
+                value={user.middlename}
+                onChange={handleChange}
+                className="border p-2 rounded"
+              />
+              <input
+                type="text"
+                name="surname"
+                placeholder="Surname"
+                value={user.surname}
+                onChange={handleChange}
+                className="border p-2 rounded"
+              />
+            </div>
+            <div className="mt-2 flex gap-2">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                {saving ? "Saving..." : "Save"}
+              </button>
+              <button
+                onClick={() => setEditing(false)}
+                className="px-4 py-1 bg-gray-400 text-white rounded hover:bg-gray-500"
+              >
+                Cancel
+              </button>
+            </div>
+          </>
+        )}
+      </div>
 
       {/* DASHBOARD CARDS */}
       <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-        
         <div className="bg-muted/50 aspect-video rounded-xl" />
         <div className="bg-muted/50 aspect-video rounded-xl" />
         <div className="bg-muted/50 aspect-video rounded-xl" />
       </div>
-
     </div>
   )
 }

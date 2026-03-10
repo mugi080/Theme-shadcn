@@ -1,49 +1,51 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, GraduationCap, Loader2, Pencil, Trash2, Award } from "lucide-react";
+import { Heart, Calendar, Clock, MapPin, Loader2, Pencil, Trash2 } from "lucide-react";
 import { getEmployeeId, getToken, logout, apiFetch } from "@/lib/api/personal-info/auth";
 
-interface Education {
-  education_id: string;
-  school_name: string;
-  basic_educ_degree_course: string;
-  attendance_start_date: string | null;
-  attendance_end_date: string | null;
-  highest_level_units_earned: string;
-  year_graduated: string;
-  scholarship_academic_honors: string;
+interface VoluntaryWork {
+  voluntary_work_id: string;
+  organization_name: string;
+  organization_address: string;
+  date_from: string;
+  date_to: string | null;
+  no_hours: number;
+  position_nature_of_work: string;
 }
 
-export default function EducationSectionUI() {
+export default function VoluntaryWorkSectionUI() {
   const employeeId = getEmployeeId();
   const token = getToken();
-  const [educations, setEducations] = useState<Education[]>([]);
+  const [volunteers, setVolunteers] = useState<VoluntaryWork[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchEducations = async () => {
+    const fetchVoluntaryWork = async () => {
       if (!employeeId || !token) {
         logout();
         return;
       }
+
       setLoading(true);
       try {
         const res = await apiFetch(`/protected/view_employee/${employeeId}`);
         const data = await res.json();
-        if (data.success && data.data?.emp_education) {
-          setEducations(data.data.emp_education);
+
+        if (data.success && data.data?.emp_voluntary_work) {
+          setVolunteers(data.data.emp_voluntary_work);
         } else {
-          setEducations([]);
+          setVolunteers([]);
         }
       } catch (err: any) {
-        setError(err.message || "Failed to fetch education records");
+        setError(err.message || "Failed to fetch voluntary work records");
       } finally {
         setLoading(false);
       }
     };
-    fetchEducations();
+
+    fetchVoluntaryWork();
   }, [employeeId, token]);
 
   const formatYear = (dateStr: string | null) => {
@@ -56,62 +58,68 @@ export default function EducationSectionUI() {
 
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
-      <div className="max-w-6xl mx-auto flex flex-col gap-6">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800">Education History</h2>
+      <div className="flex flex-col gap-4 md:gap-6 max-w-6xl mx-auto">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">Voluntary Work</h2>
 
-        {educations.length === 0 && (
-          <p className="text-gray-500 italic">No education records found.</p>
+        {volunteers.length === 0 && (
+          <p className="text-gray-500 italic text-center py-10 bg-white rounded-3xl">No voluntary work records found.</p>
         )}
 
-        {educations.map((edu) => (
+        {volunteers.map((work) => (
           <div 
-            key={edu.education_id} 
+            key={work.voluntary_work_id} 
             className="bg-white border border-gray-100 rounded-2xl md:rounded-3xl shadow-sm p-5 md:p-6 
                        flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow"
           >
-            {/* Left: Icon & Degree Info */}
+            {/* Left: Organization & Position */}
             <div className="flex items-center gap-4 md:gap-5 flex-[1.5] min-w-0">
-              <div className="p-3 md:p-4 bg-blue-50 rounded-xl md:rounded-2xl shrink-0">
-                <GraduationCap className="text-blue-500 w-6 h-6 md:w-8 md:h-8" strokeWidth={1.5} />
+              <div className="p-3 md:p-4 bg-rose-50 rounded-xl md:rounded-2xl shrink-0">
+                <Heart className="text-rose-500 w-6 h-6 md:w-8 md:h-8" strokeWidth={1.5} />
               </div>
-              <div className="min-w-0 space-y-0.5">
+              <div className="space-y-1 min-w-0">
                 <h3 className="text-base md:text-lg font-bold text-gray-900 leading-tight truncate">
-                  {edu.school_name}
+                  {work.organization_name}
                 </h3>
-                <p className="text-blue-500 text-xs md:text-sm font-medium truncate">
-                  {edu.basic_educ_degree_course}
-                </p>
+                <div className="flex flex-col gap-0.5">
+                  <p className="text-rose-500 text-xs md:text-sm font-semibold truncate">
+                    {work.position_nature_of_work}
+                  </p>
+                  <div className="flex items-center gap-1 text-gray-400 text-[11px] md:text-xs">
+                    <MapPin size={12} />
+                    <span className="truncate">{work.organization_address}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Middle Container (Grid on mobile, Flex on desktop) */}
+            {/* Middle Container: Duration & Hours */}
             <div className="grid grid-cols-2 md:flex md:flex-[2] gap-4 md:gap-0 border-t md:border-t-0 pt-4 md:pt-0">
               
-              {/* Attendance Period */}
+              {/* Duration */}
               <div className="flex flex-col items-start gap-1 md:flex-1">
                 <div className="flex items-center gap-2 text-gray-400">
                   <Calendar size={16} />
                   <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide">Duration</span>
                 </div>
                 <p className="text-sm font-bold text-gray-800 md:ml-6">
-                  {formatYear(edu.attendance_start_date)} — {formatYear(edu.attendance_end_date)}
+                  {formatYear(work.date_from)} — {formatYear(work.date_to)}
                 </p>
               </div>
 
-              {/* Academic Honors */}
+              {/* Total Hours */}
               <div className="flex flex-col items-start gap-1 md:flex-1">
                 <div className="flex items-center gap-2 text-gray-400">
-                  <Award size={16} />
-                  <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide">Honors</span>
+                  <Clock size={16} />
+                  <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide">Total Hours</span>
                 </div>
-                <p className="text-sm font-bold text-gray-800 md:ml-6 truncate w-full">
-                  {edu.scholarship_academic_honors || "—"}
+                <p className="text-sm font-black text-gray-900 md:ml-6">
+                  {work.no_hours} hrs
                 </p>
               </div>
             </div>
 
-            {/* Right: Actions */}
-            <div className="flex flex-row md:flex-col items-center justify-between md:justify-center gap-2 pt-4 md:pt-0 border-t md:border-t-0">
+            {/* Actions */}
+            <div className="flex flex-row md:flex-col items-center justify-between md:justify-center gap-2 pt-4 md:pt-0 border-t md:border-t-0 md:ml-4">
               <span className="md:hidden text-[10px] font-bold text-gray-400 uppercase">Actions</span>
               <span className="hidden md:block text-[10px] font-bold text-gray-400 uppercase mb-1">Actions</span>
               <div className="flex items-center gap-3">

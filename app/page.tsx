@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useRouter } from "next/navigation";
 import {
   Users, FileText, BarChart3, Shield, Bell, ChevronRight,
   Calendar, Megaphone, ArrowRight, Menu, X, Building2,
@@ -97,6 +98,7 @@ const STATS = [
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function HRISLandingPage() {
+  const router = useRouter();
   const [dark, setDark] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -105,6 +107,11 @@ export default function HRISLandingPage() {
 
   const t = dark ? DARK : LIGHT;
   const accent = "#1976D2";
+    // Navigation Handler
+  const handleLoginRedirect = () => {
+  router.push("/login");
+  };
+     
 
   return (
     <div style={{ backgroundColor: t.bg, color: t.text, transition: "background-color .3s, color .3s", minHeight: "100vh" }}>
@@ -146,8 +153,10 @@ export default function HRISLandingPage() {
             </button>
             <Button variant="outline" size="sm"
               className="h-8 text-xs"
-              style={{ borderColor: accent, color: accent, backgroundColor: "transparent" }}>
+              onClick={handleLoginRedirect}
+              style={{ borderColor: accent, color: accent, backgroundColor: "transparent" } }>
               Employee Login
+              
             </Button>
            
           </div>
@@ -180,7 +189,7 @@ export default function HRISLandingPage() {
             ))}
             <div style={{ height: 1, backgroundColor: t.sep }} />
             <div className="flex gap-2 pt-1">
-              <Button variant="outline" size="sm" className="flex-1 text-xs" style={{ borderColor: accent, color: accent }}>Login</Button>
+              <Button onClick={handleLoginRedirect} variant="outline" size="sm" className="flex-1 text-xs" style={{ borderColor: accent, color: accent }}>Login</Button>
               <Button size="sm" className="flex-1 text-xs text-white" style={{ backgroundColor: accent }}>Sign Up</Button>
             </div>
           </div>
