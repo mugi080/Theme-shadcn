@@ -1,5 +1,6 @@
 import React from "react"
 import  PersonalInfo  from "@/components/employee-components/personal-info-employee/personal-info"
+import  EducationForm  from "@/components/employee-components/personal-info-employee/education"
 import { EmployeeTabs } from "@/components/employee-tabs"
 import { 
   User, 
@@ -21,12 +22,12 @@ const Page = () => {
     },
     { 
       label: "Family Background", 
-      content: <div>Family info form</div>,
+      content: <div>Family Background</div>,
       icon: <Users className="h-4 w-4 mr-2" />
     },
     { 
       label: "Education", 
-      content: <div>Education table</div>,
+      content: <div><EducationForm/></div>,
       icon: <GraduationCap className="h-4 w-4 mr-2" />
     },
     { 
