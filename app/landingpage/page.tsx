@@ -149,7 +149,9 @@ export default function HRISLandingPage() {
               style={{ borderColor: accent, color: accent, backgroundColor: "transparent" }}>
               Employee Login
             </Button>
-           
+            <Button size="sm" className="h-8 text-xs text-white" style={{ backgroundColor: accent }}>
+              Sign Up
+            </Button>
           </div>
 
           {/* Mobile: toggle + hamburger */}

@@ -2,6 +2,7 @@ import { GalleryVerticalEnd } from "lucide-react"
 
 import { LoginForm } from "@/components/login-form"
 
+import { ModeToggle } from "@/components/toggle-mode"
 
 export default function LoginPage() {
   return (
@@ -10,6 +11,7 @@ export default function LoginPage() {
 
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
+            <ModeToggle />
             <LoginForm />
           </div>
         </div>
