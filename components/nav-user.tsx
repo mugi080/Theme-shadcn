@@ -1,11 +1,12 @@
 "use client"
 
+
 import {
   BadgeCheck,
   Bell,
   ChevronsUpDown,
   CreditCard,
-  LogOut,
+
   Sparkles,
 } from "lucide-react"
 
@@ -29,6 +30,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { logout } from "@/lib/api/personal-info/auth"
 
 export function NavUser({
   user,
@@ -103,8 +105,8 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <LogOut />
-              Log out
+              <span onClick={logout}>Sign out</span>
+
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

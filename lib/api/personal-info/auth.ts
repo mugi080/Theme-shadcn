@@ -24,6 +24,11 @@ export async function login(username: string, password: string) {
   // store token
   localStorage.setItem("access_token", data.token)
 
+  // store employee id
+  if (data.account?.employee?.employee_id) {
+    localStorage.setItem("employee_id", data.account.employee.employee_id)
+  }
+
   return data
 }
 
@@ -32,9 +37,19 @@ export function getToken() {
   return localStorage.getItem("access_token")
 }
 
+/* GET EMPLOYEE ID */
+export function getEmployeeId() {
+  return localStorage.getItem("employee_id")
+}
+
 /* LOGOUT */
 export function logout() {
   localStorage.removeItem("access_token")
+  localStorage.removeItem("employee_id")
+
+  if (typeof window !== "undefined") {
+    window.location.href = "/login"
+  }
 }
 
 /* AUTHENTICATED FETCH */
@@ -44,15 +59,20 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const res = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-      ...(options.headers || {}),
+      "Content-Type": "application/json",
+      ...options.headers,
     },
   })
 
   if (res.status === 401) {
     logout()
-    window.location.href = "/login"
+    throw new Error("Session expired")
+  }
+
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(text || "API request failed")
   }
 
   return res
