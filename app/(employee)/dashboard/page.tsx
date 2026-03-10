@@ -1,33 +1,65 @@
 "use client"
 
-// import { useEffect } from "react"
-// import { useRouter } from "next/navigation"
-// this is part of it also for the verifaction of the token,
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { apiFetch, getToken, getEmployeeId } from "@/lib/api/personal-info/auth"
+
+interface UserInfo {
+  firstname: string
+  middlename: string
+  lastname: string
+}
 
 export default function DashboardPage() {
+  const router = useRouter()
+  const [user, setUser] = useState<UserInfo | null>(null)
 
-  // const router = useRouter()
+  useEffect(() => {
+    const token = getToken()
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token")
+    if (!token) {
+      router.push("/login")
+      return
+    }
 
-  //   if (!token) {
-  //     router.push("/login")
-  //   }
-  // }, [])
+    const employeeId = getEmployeeId()
 
-  
-  // this is for the verifaction of the token, 
+    const fetchUser = async () => {
+      try {
+        const res = await apiFetch(`/protected/view_employee/${employeeId}`)
+        const data = await res.json()
+
+        // adjust depending on backend structure
+        setUser(data.employee)
+      } catch (error) {
+        console.error("Failed to fetch employee:", error)
+      }
+    }
+
+    fetchUser()
+  }, [router])
 
   return (
-    <>
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-          <div className="bg-muted/50 aspect-video rounded-xl" />
-          <div className="bg-muted/50 aspect-video rounded-xl" />
-          <div className="bg-muted/50 aspect-video rounded-xl" />
+    <div className="flex flex-1 flex-col gap-4 p-4">
+
+      {/* USER INFO */}
+      {user && (
+        <div className="p-4 border rounded-lg">
+          <h2 className="text-lg font-semibold">Employee</h2>
+          <p>
+            {user.firstname} {user.middlename} {user.lastname}
+          </p>
         </div>
+      )}
+
+      {/* DASHBOARD CARDS */}
+      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+        
+        <div className="bg-muted/50 aspect-video rounded-xl" />
+        <div className="bg-muted/50 aspect-video rounded-xl" />
+        <div className="bg-muted/50 aspect-video rounded-xl" />
       </div>
-    </>
+
+    </div>
   )
 }
