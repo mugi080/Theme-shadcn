@@ -1,61 +1,109 @@
-import { Education, CreateEducationPayload, UpdateEducationPayload } from "./education.types";
+import { Education, CreateEducationPayload } from "./education.types";
+import { API_BASE } from "@/lib/base";
 
-const BASE_URL = "https://hris-backend.domainhostpro.uk/api/protected";
+/* ---------------------------------------
+   Auth Headers
+--------------------------------------- */
 
 function getAuthHeaders(): HeadersInit {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
   return {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 }
 
+/* ---------------------------------------
+   Response Handler
+--------------------------------------- */
+
 async function handleResponse<T>(res: Response): Promise<T> {
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(error.message || "Something went wrong");
+  let data: any = null;
+
+  try {
+    data = await res.json();
+  } catch {
+    // backend returned empty body
   }
-  return res.json();
+
+  if (!res.ok) {
+    console.error("API ERROR:", {
+      status: res.status,
+      data,
+    });
+
+    throw new Error(data?.message || res.statusText || "API request failed");
+  }
+
+  return data;
 }
 
+/* ---------------------------------------
+   Education API
+--------------------------------------- */
+
 export const educationApi = {
-  // GET all education records for an employee
-  // GET /get_education/:employeeId
-  getAll: async (employeeId: string): Promise<Education[]> => {
-    const res = await fetch(`${BASE_URL}/get_education/${employeeId}`, {
+  /* ---------------------------------------
+     GET all education by employee
+     GET /get_education/:employeeId
+  --------------------------------------- */
+  async getAll(employeeId: string): Promise<Education[]> {
+    const res = await fetch(`${API_BASE}/get_education/${employeeId}`, {
+      method: "GET",
       headers: getAuthHeaders(),
     });
+
     const data = await handleResponse<Education[] | { data: Education[] }>(res);
-    // Handle both array response or { data: [...] } wrapper
-    return Array.isArray(data) ? data : data.data;
+
+    return Array.isArray(data) ? data : data?.data ?? [];
   },
 
-  // POST /insert_education/:employeeId
-  create: async (employeeId: string, payload: CreateEducationPayload): Promise<Education> => {
-    const res = await fetch(`${BASE_URL}/insert_education/${employeeId}`, {
+  /* ---------------------------------------
+     CREATE education
+     POST /insert_education/:employeeId
+  --------------------------------------- */
+  async create(
+    employeeId: string,
+    payload: CreateEducationPayload
+  ): Promise<Education> {
+    const res = await fetch(`${API_BASE}/insert_education/${employeeId}`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(payload),
     });
+
     return handleResponse<Education>(res);
   },
 
-  // PUT /update_education/:id
-  update: async (id: string, payload: Partial<CreateEducationPayload>): Promise<Education> => {
-    const res = await fetch(`${BASE_URL}/update_education/${id}`, {
+  /* ---------------------------------------
+     UPDATE education
+     PUT /update_education/:education_id
+  --------------------------------------- */
+  async update(
+    education_id: string,
+    payload: Partial<CreateEducationPayload>
+  ): Promise<Education> {
+    const res = await fetch(`${API_BASE}/update_education/${education_id}`, {
       method: "PUT",
       headers: getAuthHeaders(),
       body: JSON.stringify(payload),
     });
+
     return handleResponse<Education>(res);
   },
 
-  // DELETE /delete_education/:id
-  delete: async (id: string): Promise<void> => {
-    const res = await fetch(`${BASE_URL}/delete_education/${id}`, {
+  /* ---------------------------------------
+     DELETE education
+     DELETE /delete_education/:education_id
+  --------------------------------------- */
+  async delete(education_id: string): Promise<void> {
+    const res = await fetch(`${API_BASE}/delete_education/${education_id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
     });
-    return handleResponse<void>(res);
+
+    await handleResponse(res);
   },
 };
