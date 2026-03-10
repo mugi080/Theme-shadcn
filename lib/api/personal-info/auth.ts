@@ -1,5 +1,4 @@
-// lib/auth.ts
-
+// lib/api/personal-info/auth.ts
 import { API_BASE } from "@/lib/base"
 
 /* LOGIN */
@@ -76,4 +75,20 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   }
 
   return res
+}
+
+/* PATCH HELPER */
+export async function apiPatch(endpoint: string, body: any) {
+  return apiFetch(endpoint, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  })
+}
+
+/* POST HELPER */
+export async function apiPost(endpoint: string, body: any) {
+  return apiFetch(endpoint, {
+    method: "POST",
+    body: JSON.stringify(body),
+  })
 }
