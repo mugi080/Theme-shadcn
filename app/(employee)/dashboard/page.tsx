@@ -1,106 +1,93 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { apiFetch, getToken, getEmployeeId, logout } from "@/lib/api/personal-info/auth"
+import { useEffect, useState } from "react";
+import { apiFetch, getEmployeeId, logout } from "@/lib/api/personal-info/auth";
 
 interface UserInfo {
-  firstname: string
-  middlename: string
-  surname: string
+  firstname: string;
+  middlename: string;
+  surname: string;
 }
 
 export default function DashboardPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<UserInfo>({
-    firstname: "",
-    middlename: "",
-    surname: "",
-  })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [editing, setEditing] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const [user, setUser] = useState<UserInfo>({ firstname: "", middlename: "", surname: "" });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const employeeId = getEmployeeId()
-  const token = getToken()
+  const employeeId = getEmployeeId();
 
+  // Fetch employee info on mount
   useEffect(() => {
-    if (!token || !employeeId) {
-      logout()
-      return
+    if (!employeeId) {
+      logout(); // redirect to login if no employee ID
+      return;
     }
 
     const fetchUser = async () => {
       try {
-        const res = await apiFetch(`/protected/view_employee/${employeeId}`)
-        const data = await res.json()
-
-        console.log("API RESPONSE:", data)
-
+        const data = await apiFetch(`/protected/view_employee/${employeeId}`);
         if (data.success && data.data) {
-          const emp = data.data
+          const emp = data.data;
           setUser({
             firstname: emp.firstname || "",
             middlename: emp.middlename || "",
             surname: emp.surname || "",
-          })
+          });
         } else {
-          setError("Employee data not found")
+          setError("Employee data not found");
         }
       } catch (err: any) {
-        console.error("Failed to fetch employee:", err)
-        setError(err.message || "Failed to fetch data")
+        setError(err.message || "Failed to fetch data");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchUser()
-  }, [employeeId, token])
+    fetchUser();
+  }, [employeeId]);
 
+  // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUser({ ...user, [e.target.name]: e.target.value })
-  }
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
 
+  // Save updated user info
   const handleSave = async () => {
-    if (!employeeId) return
+    if (!employeeId) return;
 
-    setSaving(true)
+    setSaving(true);
     try {
-      const res = await apiFetch(`/protected/update_employee/${employeeId}`, {
-        method: "PUT", // use PUT now
+      const data = await apiFetch(`/protected/update_employee/${employeeId}`, {
+        method: "PUT",
         body: JSON.stringify(user),
-      })
-      const data = await res.json()
-      console.log("PUT RESPONSE:", data)
+      });
+
       if (data.success) {
-        setEditing(false)
+        setEditing(false);
       } else {
-        setError("Failed to update data")
+        setError("Failed to update data");
       }
     } catch (err: any) {
-      console.error("Update failed:", err)
-      setError(err.message || "Update failed")
+      setError(err.message || "Update failed");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
-  if (loading) return <p className="p-4">Loading...</p>
-  if (error) return <p className="p-4 text-red-500">{error}</p>
+  if (loading) return <p className="p-4 text-center">Loading...</p>;
+  if (error) return <p className="p-4 text-red-500 text-center">{error}</p>;
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4">
-      {/* USER INFO */}
-      <div className="p-4 border rounded-lg bg-white/20 backdrop-blur-md">
-        <h2 className="text-lg font-semibold">Employee</h2>
+    <div className="flex flex-1 flex-col gap-4 p-4 max-w-5xl mx-auto">
+      {/* Employee info card */}
+      <div className="p-4 border rounded-lg bg-white/20 backdrop-blur-md shadow-sm">
+        <h2 className="text-lg font-semibold mb-2">Employee</h2>
 
         {!editing ? (
           <>
-            <p>
-              {user.firstname || "-"} {user.middlename || "-"} {user.surname || "-"}
-            </p>
+            <p className="text-gray-800">{user.firstname || "-"} {user.middlename || "-"} {user.surname || "-"}</p>
             <button
               className="mt-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={() => setEditing(true)}
@@ -136,6 +123,7 @@ export default function DashboardPage() {
                 className="border p-2 rounded"
               />
             </div>
+
             <div className="mt-2 flex gap-2">
               <button
                 onClick={handleSave}
@@ -155,12 +143,12 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* DASHBOARD CARDS */}
+      {/* Placeholder cards or widgets */}
       <div className="grid auto-rows-min gap-4 md:grid-cols-3">
         <div className="bg-muted/50 aspect-video rounded-xl" />
         <div className="bg-muted/50 aspect-video rounded-xl" />
         <div className="bg-muted/50 aspect-video rounded-xl" />
       </div>
     </div>
-  )
+  );
 }

@@ -1,94 +1,61 @@
-// lib/api/personal-info/auth.ts
-import { API_BASE } from "@/lib/base"
+import { API_BASE } from "@/lib/base";
 
-/* LOGIN */
+// Login via HospCoth API directly
 export async function login(username: string, password: string) {
   const res = await fetch(`${API_BASE}/web_login`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      username,
-      password,
-    }),
-  })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
 
-  if (!res.ok) {
-    throw new Error("Invalid login")
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    console.error("Server returned HTML instead of JSON:");
+    console.error(text);
+    throw new Error("Server returned invalid response");
   }
 
-  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || "Invalid login");
 
-  // store token
-  localStorage.setItem("access_token", data.token)
+  // Save token and employee_id locally
+  if (data.token) localStorage.setItem("access_token", data.token);
+  if (data.account?.employee?.employee_id)
+    localStorage.setItem("employee_id", data.account.employee.employee_id);
 
-  // store employee id
-  if (data.account?.employee?.employee_id) {
-    localStorage.setItem("employee_id", data.account.employee.employee_id)
-  }
-
-  return data
+  return data;
 }
 
-/* GET TOKEN */
-export function getToken() {
-  return localStorage.getItem("access_token")
-}
-
-/* GET EMPLOYEE ID */
-export function getEmployeeId() {
-  return localStorage.getItem("employee_id")
-}
-
-/* LOGOUT */
+// Logout helper
 export function logout() {
-  localStorage.removeItem("access_token")
-  localStorage.removeItem("employee_id")
-
-  if (typeof window !== "undefined") {
-    window.location.href = "/login"
-  }
+  localStorage.removeItem("employee_id");
+  localStorage.removeItem("access_token");
+  window.location.href = "/login";
 }
 
-/* AUTHENTICATED FETCH */
+// Get employee ID helper
+export function getEmployeeId() {
+  return localStorage.getItem("employee_id");
+}
+
+// API fetch wrapper with token
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
-  const token = getToken()
+  const token = localStorage.getItem("access_token");
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
 
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
-  if (res.status === 401) {
-    logout()
-    throw new Error("Session expired")
+  const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error("Server returned invalid response");
   }
-
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(text || "API request failed")
-  }
-
-  return res
-}
-
-/* PATCH HELPER */
-export async function apiPatch(endpoint: string, body: any) {
-  return apiFetch(endpoint, {
-    method: "PATCH",
-    body: JSON.stringify(body),
-  })
-}
-
-/* POST HELPER */
-export async function apiPost(endpoint: string, body: any) {
-  return apiFetch(endpoint, {
-    method: "POST",
-    body: JSON.stringify(body),
-  })
+  return data;
 }
