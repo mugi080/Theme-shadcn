@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 
 const Page = () => {
+  
   const tabs = [
     { 
       label: "Personal Profile", 
