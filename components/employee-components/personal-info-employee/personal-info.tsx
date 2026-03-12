@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { User, MapPin, Phone, Mail, IdCard, Hash, Loader2, Pencil, Calendar, Heart } from "lucide-react";
-import { getEmployeeId, getToken, logout, apiFetch } from "@/lib/api/personal-info/auth";
+import { getEmployeeId, logout, apiFetch } from "@/lib/api/personal-info/auth";
 
 
 interface PersonalInfo {
@@ -28,14 +28,13 @@ interface PersonalInfo {
 
 export default function PersonalInfoSectionUI() {
   const employeeId = getEmployeeId();
-  const token = getToken();
   const [info, setInfo] = useState<PersonalInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchInfo = async () => {
-      if (!employeeId || !token) {
+      if (!employeeId) {
         logout();
         return;
       }
@@ -53,7 +52,7 @@ export default function PersonalInfoSectionUI() {
       }
     };
     fetchInfo();
-  }, [employeeId, token]);
+  }, [employeeId]);
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 size={30} className="animate-spin text-blue-500" /></div>;
   if (!info) return null;

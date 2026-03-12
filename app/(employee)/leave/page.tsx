@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { CalendarDays, Clock, CheckCircle2, Loader2, AlertCircle, FileText, Send } from "lucide-react"
-import { apiFetch, getToken, getEmployeeId, logout } from "@/lib/api/personal-info/auth"
+import { apiFetch, getEmployeeId, logout } from "@/lib/api/personal-info/auth"
 
 interface LeaveType {
   leave_type_id: string
@@ -35,7 +35,7 @@ const STEP_LABELS = ["Leave Type", "Schedule", "Details", "Review"]
 
 export default function LeaveApplicationForm() {
   const employeeId = getEmployeeId()
-  const token = getToken()
+
 
   const [step, setStep] = useState(0)
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([])
@@ -55,7 +55,10 @@ export default function LeaveApplicationForm() {
   })
 
   useEffect(() => {
-    if (!token || !employeeId) { logout(); return }
+    if (!employeeId) {
+      logout()
+      return
+}
     const init = async () => {
       try {
         const ltRes = await apiFetch("/protected/leave_types")
@@ -77,7 +80,7 @@ export default function LeaveApplicationForm() {
       }
     }
     init()
-  }, [employeeId, token])
+  }, [employeeId])
 
   const displayTypes: LeaveType[] = leaveTypes.length > 0
     ? leaveTypes

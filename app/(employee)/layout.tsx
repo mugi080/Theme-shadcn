@@ -8,7 +8,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { Separator } from "@/components/ui/separator"
 
 // ✅ Dynamic import for named export
-const AppSidebar = dynamic(() => import("@/components/app-sidebar").then(mod => mod.AppSidebar), {
+const AppSidebar = dynamic(() => import("@/components/layout/app-sidebar").then(mod => mod.AppSidebar), {
   ssr: false
 })
 
