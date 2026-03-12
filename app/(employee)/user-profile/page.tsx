@@ -9,6 +9,7 @@ import EligibilitySectionUI from "@/components/employee-components/personal-info
 import VoluntaryWorkSectionUI from "@/components/employee-components/personal-info-employee/voluntary-work";
 import LDInterventionSectionUI from "@/components/employee-components/personal-info-employee/learning&development";
 import EmployeeCard from "@/components/employee-components/personal-info-employee/employee-card";
+import FamilyBackgroundSection from "@/components/employee-components/personal-info-employee/familybackground";
 import { EmployeeTabs } from "@/components/employee-tabs";
 import { 
   User, 
@@ -31,7 +32,7 @@ const Page = () => {
     },
     { 
       label: "Family Background", 
-      content: <div>Family Background</div>,
+      content: <div><FamilyBackgroundSection/></div>,
       icon: <Users className="h-4 w-4 mr-2" />
     },
     { 
