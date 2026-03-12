@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Award, Calendar, MapPin, Loader2, Pencil, Trash2, ShieldCheck } from "lucide-react";
+import { Award, Calendar, MapPin, Loader2, ShieldCheck } from "lucide-react";
 import { getEmployeeId, getToken, logout, apiFetch } from "@/lib/api/personal-info/auth";
 
 interface Eligibility {
@@ -71,8 +71,8 @@ export default function EligibilitySectionUI() {
         )}
 
         {eligibilities.map((elig) => (
-          <div 
-            key={elig.eligibility_id} 
+          <div
+            key={elig.eligibility_id}
             className="bg-white border border-gray-100 rounded-2xl md:rounded-3xl shadow-sm p-5 md:p-6 
                        flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow"
           >
@@ -97,9 +97,9 @@ export default function EligibilitySectionUI() {
               </div>
             </div>
 
-            {/* Middle & Right Content Container (Grid for mobile, Flex for desktop) */}
-            <div className="grid grid-cols-2 md:flex md:flex-[2] gap-4 md:gap-0">
-              
+            {/* Middle Content (Grid for mobile, Flex for desktop) */}
+            <div className="grid grid-cols-2 md:flex md:flex-[2] gap-4 md:gap-0 border-t md:border-t-0 pt-4 md:pt-0">
+
               {/* Rating & Date */}
               <div className="flex flex-col items-start gap-1 md:flex-1">
                 <div className="flex items-center gap-2 text-gray-400">
@@ -124,20 +124,6 @@ export default function EligibilitySectionUI() {
                   </p>
                   <p className="text-[10px] md:text-[11px] text-gray-500">Exp: {formatDate(elig.validity_date)}</p>
                 </div>
-              </div>
-            </div>
-
-            {/* Actions: Side-by-side on mobile, stacked on desktop */}
-            <div className="flex flex-row md:flex-col items-center justify-between md:justify-center gap-2 pt-4 md:pt-0 border-t md:border-t-0 md:ml-4">
-              <span className="md:hidden text-[10px] font-bold text-gray-400 uppercase">Actions</span>
-              <span className="hidden md:block text-[10px] font-bold text-gray-400 uppercase mb-1">Actions</span>
-              <div className="flex items-center gap-3">
-                <button className="p-2 md:p-2.5 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors">
-                  <Pencil size={18} fill="currentColor" className="text-white" />
-                </button>
-                <button className="p-2 md:p-2.5 bg-red-100 text-red-500 rounded-full hover:bg-red-200 transition-colors">
-                  <Trash2 size={18} fill="currentColor" className="text-white" />
-                </button>
               </div>
             </div>
           </div>

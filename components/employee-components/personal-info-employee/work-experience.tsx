@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, Briefcase, Loader2, Pencil, Trash2, Banknote } from "lucide-react";
+import { Calendar, Briefcase, Loader2, Banknote } from "lucide-react";
 import { getEmployeeId, getToken, logout, apiFetch } from "@/lib/api/personal-info/auth";
 
 interface WorkExperience {
@@ -76,8 +76,8 @@ export default function WorkExperienceSectionUI() {
         )}
 
         {experiences.map((exp) => (
-          <div 
-            key={exp.work_id} 
+          <div
+            key={exp.work_id}
             className="group bg-white border border-gray-100 rounded-2xl md:rounded-3xl shadow-sm p-5 md:p-6 
                        flex flex-col md:flex-row md:items-center justify-between gap-5 hover:shadow-md transition-shadow"
           >
@@ -103,9 +103,9 @@ export default function WorkExperienceSectionUI() {
               </div>
             </div>
 
-            {/* Middle & Right Content: Grid on mobile, Flex on desktop */}
+            {/* Middle Content: Grid on mobile, Flex on desktop */}
             <div className="grid grid-cols-2 md:flex md:flex-[2] gap-4 md:gap-0 border-t md:border-t-0 pt-4 md:pt-0">
-              
+
               {/* Duration */}
               <div className="flex flex-col items-start gap-1 md:flex-1">
                 <div className="flex items-center gap-2 text-gray-400">
@@ -126,20 +126,6 @@ export default function WorkExperienceSectionUI() {
                 <p className="text-sm font-black text-gray-900 md:ml-7">
                   {formatCurrency(exp.salary_monthly)}
                 </p>
-              </div>
-            </div>
-
-            {/* Actions Section */}
-            <div className="flex flex-row md:flex-col items-center justify-between md:justify-center gap-2 pt-4 md:pt-0 border-t md:border-t-0 md:ml-4">
-              <span className="md:hidden text-[10px] font-bold text-gray-400 uppercase">Actions</span>
-              <span className="hidden md:block text-[10px] font-bold text-gray-400 uppercase mb-1">Actions</span>
-              <div className="flex items-center gap-3">
-                <button className="p-2 md:p-2.5 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors">
-                  <Pencil size={18} fill="currentColor" className="text-white" />
-                </button>
-                <button className="p-2 md:p-2.5 bg-red-100 text-red-500 rounded-full hover:bg-red-200 transition-colors">
-                  <Trash2 size={18} fill="currentColor" className="text-white" />
-                </button>
               </div>
             </div>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BookOpen, Calendar, Clock, Loader2, Pencil, Trash2, Building2 } from "lucide-react";
+import { BookOpen, Calendar, Clock, Loader2, Building2 } from "lucide-react";
 import { getEmployeeId, getToken, logout, apiFetch } from "@/lib/api/personal-info/auth";
 
 interface LDIntervention {
@@ -53,7 +53,11 @@ export default function LDInterventionSectionUI() {
     return `${s} - ${e}`;
   };
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 size={30} className="animate-spin text-orange-500" /></div>;
+  if (loading) return (
+    <div className="flex justify-center py-20">
+      <Loader2 size={30} className="animate-spin text-orange-500" />
+    </div>
+  );
   if (error) return <p className="text-red-500 p-8">{error}</p>;
 
   return (
@@ -68,9 +72,9 @@ export default function LDInterventionSectionUI() {
         )}
 
         {interventions.map((ld) => (
-          <div 
-            key={ld.ld_intervention_id} 
-            className="bg-white border border-gray-100 rounded-2xl md:rounded-3xl shadow-sm p-5 md:p-6 
+          <div
+            key={ld.ld_intervention_id}
+            className="bg-white border border-gray-100 rounded-2xl md:rounded-3xl shadow-sm p-5 md:p-6
                        flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow"
           >
             {/* Left: Training Title & Conducted By */}
@@ -89,9 +93,9 @@ export default function LDInterventionSectionUI() {
               </div>
             </div>
 
-            {/* Middle Container: Duration & Hours */}
+            {/* Middle: Inclusive Dates & Hours */}
             <div className="grid grid-cols-2 md:flex md:flex-[2] gap-4 md:gap-0 border-t md:border-t-0 pt-4 md:pt-0">
-              
+
               {/* Duration */}
               <div className="flex flex-col items-start gap-1 md:flex-1">
                 <div className="flex items-center gap-2 text-gray-400">
@@ -114,23 +118,9 @@ export default function LDInterventionSectionUI() {
                 </p>
               </div>
             </div>
-
-            {/* Actions */}
-            <div className="flex flex-row md:flex-col items-center justify-between md:justify-center gap-2 pt-4 md:pt-0 border-t md:border-t-0 md:ml-4">
-              <span className="md:hidden text-[10px] font-bold text-gray-400 uppercase">Actions</span>
-              <span className="hidden md:block text-[10px] font-bold text-gray-400 uppercase mb-1">Actions</span>
-              <div className="flex items-center gap-3">
-                <button className="p-2 md:p-2.5 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors">
-                  <Pencil size={18} fill="currentColor" className="text-white" />
-                </button>
-                <button className="p-2 md:p-2.5 bg-red-100 text-red-500 rounded-full hover:bg-red-200 transition-colors">
-                  <Trash2 size={18} fill="currentColor" className="text-white" />
-                </button>
-              </div>
-            </div>
           </div>
         ))}
       </div>
     </div>
   );
-}
+} 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, GraduationCap, Loader2, Pencil, Trash2, Award } from "lucide-react";
+import { Calendar, GraduationCap, Loader2, Award, BookOpen } from "lucide-react";
 import { getEmployeeId, getToken, logout, apiFetch } from "@/lib/api/personal-info/auth";
 
 interface Education {
@@ -13,6 +13,30 @@ interface Education {
   highest_level_units_earned: string;
   year_graduated: string;
   scholarship_academic_honors: string;
+}
+
+type EducationLevel = "Elementary" | "High School" | "Senior High" | "College" | "Other";
+
+const EDUCATION_LEVELS: { label: EducationLevel; color: string; bg: string }[] = [
+  { label: "Elementary",  color: "text-green-600",  bg: "bg-green-50 border-green-200"  },
+  { label: "High School", color: "text-yellow-600", bg: "bg-yellow-50 border-yellow-200" },
+  { label: "Senior High", color: "text-orange-600", bg: "bg-orange-50 border-orange-200" },
+  { label: "College",     color: "text-blue-600",   bg: "bg-blue-50 border-blue-200"   },
+  { label: "Other",       color: "text-gray-500",   bg: "bg-gray-50 border-gray-200"   },
+];
+
+function detectEducationLevel(course: string, schoolName: string): EducationLevel {
+  const text = `${course} ${schoolName}`.toLowerCase();
+  if (text.includes("senior high") || text.includes("shs") || text.includes("grade 11") || text.includes("grade 12")) return "Senior High";
+  if (text.includes("high school") || text.includes("secondary")) return "High School";
+  if (text.includes("elementary") || text.includes("primary") || text.includes("grade school")) return "Elementary";
+  if (
+    text.includes("bachelor") || text.includes("bs ") || text.includes("ab ") ||
+    text.includes("college") || text.includes("university") || text.includes("degree") ||
+    text.includes("master") || text.includes("doctor") || text.includes("phd") ||
+    text.includes("engineer") || text.includes("nursing") || text.includes("medicine")
+  ) return "College";
+  return "Other";
 }
 
 export default function EducationSectionUI() {
@@ -51,7 +75,11 @@ export default function EducationSectionUI() {
     return new Date(dateStr).getFullYear();
   };
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 size={30} className="animate-spin text-blue-500" /></div>;
+  if (loading) return (
+    <div className="flex justify-center py-20">
+      <Loader2 size={30} className="animate-spin text-blue-500" />
+    </div>
+  );
   if (error) return <p className="text-red-500 p-8">{error}</p>;
 
   return (
@@ -63,68 +91,68 @@ export default function EducationSectionUI() {
           <p className="text-gray-500 italic">No education records found.</p>
         )}
 
-        {educations.map((edu) => (
-          <div 
-            key={edu.education_id} 
-            className="bg-white border border-gray-100 rounded-2xl md:rounded-3xl shadow-sm p-5 md:p-6 
-                       flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow"
-          >
-            {/* Left: Icon & Degree Info */}
-            <div className="flex items-center gap-4 md:gap-5 flex-[1.5] min-w-0">
-              <div className="p-3 md:p-4 bg-blue-50 rounded-xl md:rounded-2xl shrink-0">
-                <GraduationCap className="text-blue-500 w-6 h-6 md:w-8 md:h-8" strokeWidth={1.5} />
-              </div>
-              <div className="min-w-0 space-y-0.5">
-                <h3 className="text-base md:text-lg font-bold text-gray-900 leading-tight truncate">
-                  {edu.school_name}
-                </h3>
-                <p className="text-blue-500 text-xs md:text-sm font-medium truncate">
-                  {edu.basic_educ_degree_course}
-                </p>
-              </div>
-            </div>
+        {educations.map((edu) => {
+          const level = detectEducationLevel(edu.basic_educ_degree_course, edu.school_name);
+          const levelStyle = EDUCATION_LEVELS.find((l) => l.label === level) ?? EDUCATION_LEVELS[4];
 
-            {/* Middle Container (Grid on mobile, Flex on desktop) */}
-            <div className="grid grid-cols-2 md:flex md:flex-[2] gap-4 md:gap-0 border-t md:border-t-0 pt-4 md:pt-0">
-              
-              {/* Attendance Period */}
-              <div className="flex flex-col items-start gap-1 md:flex-1">
-                <div className="flex items-center gap-2 text-gray-400">
-                  <Calendar size={16} />
-                  <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide">Duration</span>
+          return (
+            <div
+              key={edu.education_id}
+              className="bg-white border border-gray-100 rounded-2xl md:rounded-3xl shadow-sm p-5 md:p-6 
+                         flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow"
+            >
+              {/* Left: Icon & Degree Info */}
+              <div className="flex items-center gap-4 md:gap-5 flex-[1.5] min-w-0">
+                <div className="p-3 md:p-4 bg-blue-50 rounded-xl md:rounded-2xl shrink-0">
+                  <GraduationCap className="text-blue-500 w-6 h-6 md:w-8 md:h-8" strokeWidth={1.5} />
                 </div>
-                <p className="text-sm font-bold text-gray-800 md:ml-6">
-                  {formatYear(edu.attendance_start_date)} — {formatYear(edu.attendance_end_date)}
-                </p>
-              </div>
-
-              {/* Academic Honors */}
-              <div className="flex flex-col items-start gap-1 md:flex-1">
-                <div className="flex items-center gap-2 text-gray-400">
-                  <Award size={16} />
-                  <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide">Honors</span>
+                <div className="min-w-0 space-y-0.5">
+                  <h3 className="text-base md:text-lg font-bold text-gray-900 leading-tight truncate">
+                    {edu.school_name}
+                  </h3>
+                  <p className="text-blue-500 text-xs md:text-sm font-medium truncate">
+                    {edu.basic_educ_degree_course}
+                  </p>
                 </div>
-                <p className="text-sm font-bold text-gray-800 md:ml-6 truncate w-full">
-                  {edu.scholarship_academic_honors || "—"}
-                </p>
               </div>
-            </div>
 
-            {/* Right: Actions */}
-            <div className="flex flex-row md:flex-col items-center justify-between md:justify-center gap-2 pt-4 md:pt-0 border-t md:border-t-0">
-              <span className="md:hidden text-[10px] font-bold text-gray-400 uppercase">Actions</span>
-              <span className="hidden md:block text-[10px] font-bold text-gray-400 uppercase mb-1">Actions</span>
-              <div className="flex items-center gap-3">
-                <button className="p-2 md:p-2.5 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors">
-                  <Pencil size={18} fill="currentColor" className="text-white" />
-                </button>
-                <button className="p-2 md:p-2.5 bg-red-100 text-red-500 rounded-full hover:bg-red-200 transition-colors">
-                  <Trash2 size={18} fill="currentColor" className="text-white" />
-                </button>
+              {/* Middle: Duration & Honors */}
+              <div className="grid grid-cols-2 md:flex md:flex-2 gap-4 md:gap-0 border-t md:border-t-0 pt-4 md:pt-0">
+
+                {/* Attendance Period */}
+                <div className="flex flex-col items-start gap-1 md:flex-1">
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <Calendar size={16} />
+                    <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide">Duration</span>
+                  </div>
+                  <p className="text-sm font-bold text-gray-800 md:ml-6">
+                    {formatYear(edu.attendance_start_date)} — {formatYear(edu.attendance_end_date)}
+                  </p>
+                </div>
+
+                {/* Academic Honors */}
+                <div className="flex flex-col items-start gap-1 md:flex-1">
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <Award size={16} />
+                    <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide">Honors</span>
+                  </div>
+                  <p className="text-sm font-bold text-gray-800 md:ml-6 truncate w-full">
+                    {edu.scholarship_academic_honors || "—"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Right: Educational Level Badge */}
+              <div className="flex flex-row md:flex-col items-center justify-between md:justify-center gap-2 pt-4 md:pt-0 border-t md:border-t-0">
+                <span className="text-[10px] font-bold text-gray-400 uppercase">Level</span>
+                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold ${levelStyle.bg} ${levelStyle.color}`}>
+                  <BookOpen size={13} />
+                  {levelStyle.label}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { User, MapPin, Phone, Mail, IdCard, Hash, Loader2, Pencil, Calendar, Heart } from "lucide-react";
 import { getEmployeeId, getToken, logout, apiFetch } from "@/lib/api/personal-info/auth";
 
+
 interface PersonalInfo {
   firstname: string;
   middlename: string;
@@ -106,7 +107,7 @@ export default function PersonalInfoSectionUI() {
                 </div>
                 <div className="flex justify-between border-b border-white/20 pb-2">
                   <span className="text-sm opacity-80">Citizenship</span>
-                  <span className="font-bold">Filipino</span>
+                  <span className="font-bold"></span>
                 </div>
               </div>
             </div>

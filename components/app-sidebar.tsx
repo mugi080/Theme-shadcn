@@ -53,78 +53,22 @@ const data = {
       title: "User Profile",
       url: "/user-profile",
       icon: CircleUser,
-      items: [
-        {
-          title: "Personal Profile",
-          url: "#",
-        },
-        {
-          title: "Family Background",
-          url: "#",
-        },
-        {
-          title: "Education",
-          url: "#",
-        },
-        {
-          title: "Work experience",
-          url: "#",
-        },
-                {
-          title: "Learning & Development",
-          url: "#",
-        },
-                {
-          title: "Qualifications",
-          url: "#",
-        },
-      ],
+      
     },
     {
-      title: "Documentation",
-      url: "#",
+      title: "Leave Management",
+      url: "/leave",
       icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
+    },
+    {
+      title: "Appointments",
+      url: "/appointment",
+      icon: Bot,
     },
     {
       title: "Settings",
       url: "#",
       icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
     },
   ],
   projects: [

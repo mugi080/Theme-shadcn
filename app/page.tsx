@@ -280,7 +280,7 @@ export default function HRISLandingPage() {
                         <p className="text-sm font-semibold" style={{ color: t.text }}>{label}</p>
                         <p className="text-xs truncate" style={{ color: t.muted }}>{sub}</p>
                       </div>
-                      <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: t.muted }} />
+                      <ChevronRight className="w-4 h-4 shrink-0" style={{ color: t.muted }} />
                     </div>
                   ))}
                 </div>
