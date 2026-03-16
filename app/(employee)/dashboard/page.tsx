@@ -40,6 +40,7 @@ export default function DashboardPage() {
           setError("Employee data not found");
         }
       } catch (err: any) {
+        // apiFetch already handles 401 + redirect automatically
         setError(err.message || "Failed to fetch data");
       } finally {
         setLoading(false);
@@ -59,6 +60,7 @@ export default function DashboardPage() {
     if (!employeeId) return;
 
     setSaving(true);
+    setError(null);
     try {
       const data = await apiFetch(`/protected/update_employee/${employeeId}`, {
         method: "PUT",
@@ -71,7 +73,7 @@ export default function DashboardPage() {
       if (data.success) {
         setEditing(false);
       } else {
-        setError("Failed to update data");
+        setError(data.message || "Failed to update data");
       }
     } catch (err: any) {
       setError(err.message || "Update failed");
@@ -80,20 +82,37 @@ export default function DashboardPage() {
     }
   };
 
-  if (loading) return <p className="p-4 text-center">Loading...</p>;
-  if (error) return <p className="p-4 text-red-500 text-center">{error}</p>;
+  if (loading) return <p className="p-4 text-center text-gray-600">Loading employee data...</p>;
+  if (error) {
+    return (
+      <div className="p-4 text-center">
+        <p className="text-red-500 mb-2">{error}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="text-blue-500 hover:underline text-sm"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 max-w-5xl mx-auto">
       {/* Employee info card */}
       <div className="p-4 border rounded-lg bg-white/20 backdrop-blur-md shadow-sm">
-        <h2 className="text-lg font-semibold mb-2">Employee</h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg font-semibold">Employee</h2>
+
+        </div>
 
         {!editing ? (
           <>
-            <p className="text-gray-800">{user.firstname || "-"} {user.middlename || "-"} {user.surname || "-"}</p>
+            <p className="text-gray-800">
+              {user.firstname || "-"} {user.middlename || "-"} {user.surname || "-"}
+            </p>
             <button
-              className="mt-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="mt-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
               onClick={() => setEditing(true)}
             >
               Edit
@@ -108,7 +127,7 @@ export default function DashboardPage() {
                 placeholder="First Name"
                 value={user.firstname}
                 onChange={handleChange}
-                className="border p-2 rounded"
+                className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <input
                 type="text"
@@ -116,7 +135,7 @@ export default function DashboardPage() {
                 placeholder="Middle Name"
                 value={user.middlename}
                 onChange={handleChange}
-                className="border p-2 rounded"
+                className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <input
                 type="text"
@@ -124,7 +143,7 @@ export default function DashboardPage() {
                 placeholder="Surname"
                 value={user.surname}
                 onChange={handleChange}
-                className="border p-2 rounded"
+                className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
 
@@ -132,13 +151,13 @@ export default function DashboardPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                className="px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 transition"
               >
                 {saving ? "Saving..." : "Save"}
               </button>
               <button
                 onClick={() => setEditing(false)}
-                className="px-4 py-1 bg-gray-400 text-white rounded hover:bg-gray-500"
+                className="px-4 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
               >
                 Cancel
               </button>
