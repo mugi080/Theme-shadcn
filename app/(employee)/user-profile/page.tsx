@@ -1,5 +1,28 @@
 "use client";
 
+<<<<<<< HEAD
+import React from "react";
+// Import the profile header component we just created
+import PersonalInfoSectionUI from "@/components/employee-components/personal-info-employee/personal-info"; 
+import EducationForm from "@/components/employee-components/personal-info-employee/education";
+import WorkExperienceSectionUI from "@/components/employee-components/personal-info-employee/work-experience";
+import EligibilitySectionUI from "@/components/employee-components/personal-info-employee/eligibility";
+import VoluntaryWorkSectionUI from "@/components/employee-components/personal-info-employee/voluntary-work";
+import LDInterventionSectionUI from "@/components/employee-components/personal-info-employee/learning&development";
+import EmployeeCard from "@/components/employee-components/personal-info-employee/employee-card";
+import FamilyBackgroundSection from "@/components/employee-components/personal-info-employee/familybackground";
+import { EmployeeTabs } from "@/components/employee-tabs";
+import { 
+  User, 
+  Users, 
+  GraduationCap, 
+  FileCheck, 
+  Briefcase, 
+  HeartHandshake, 
+  BookOpen, 
+  Info 
+} from "lucide-react";
+=======
 import React, { useEffect, useState } from "react";
 import PersonalInfoSectionUI from "@/components/employee-components/personal-info-employee/personal-info-ui";
 import FamilyBackgroundSectionUI from "@/components/employee-components/personal-info-employee/family-background";
@@ -59,6 +82,7 @@ const UserProfilePage = () => {
     fetchEmployee();
   }, [employeeId]);
 
+<<<<<<< HEAD
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -142,6 +166,66 @@ const UserProfilePage = () => {
         emp_identifications: employeeData.emp_identifications ?? []
       }} />,
     },
+=======
+  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (error) return <div className="p-8 text-red-500">{error}</div>;
+  if (!employeeData) return <div className="p-8 text-gray-500">No employee data found.</div>;
+>>>>>>> dfa1bb7c7585f58ce08b9747391a7e465de3a9d9
+
+  const tabs = [
+<<<<<<< HEAD
+    { 
+      label: "Personal Profile", 
+      // This is the tab content, usually more detailed info
+      content: <div><PersonalInfoSectionUI /></div>, 
+      icon: <User className="h-4 w-4 mr-2" />
+    },
+    { 
+      label: "Family Background", 
+      content: <div><FamilyBackgroundSection/></div>,
+      icon: <Users className="h-4 w-4 mr-2" />
+    },
+    { 
+      label: "Education", 
+      content: <div><EducationForm/></div>,
+      icon: <GraduationCap className="h-4 w-4 mr-2" />
+    },
+    { 
+      label: "Civil Service Eligibility", 
+      content: <div><EligibilitySectionUI/></div>,
+      icon: <FileCheck className="h-4 w-4 mr-2" />
+    },
+    { 
+      label: "Work Experience", 
+      content: <div><WorkExperienceSectionUI/></div>,
+      icon: <Briefcase className="h-4 w-4 mr-2" />
+    },
+    { 
+      label: "Voluntary Work", 
+      content: <div><VoluntaryWorkSectionUI/></div>,
+      icon: <HeartHandshake className="h-4 w-4 mr-2" />
+    },
+    { 
+      label: "Learning & Development", 
+      content: <div><LDInterventionSectionUI/></div>,
+      icon: <BookOpen className="h-4 w-4 mr-2" />
+    },
+    { 
+      label: "Other Information", 
+      content: <div>OTHER INFORMATION</div>,
+      icon: <Info className="h-4 w-4 mr-2" />
+    },
+=======
+    { label: "Personal Profile", content: <PersonalInfoSectionUI data={employeeData} />, icon: <User className="h-4 w-4 mr-2" /> },
+    { label: "Family Background", content: <div>Family Background</div>, icon: <Users className="h-4 w-4 mr-2" /> },
+    { label: "Education", content: <EducationForm data={employeeData.emp_education ?? []} />, icon: <GraduationCap className="h-4 w-4 mr-2" /> },
+    { label: "Civil Service Eligibility", content: <EligibilitySectionUI data={employeeData.emp_eligibility ?? []} />, icon: <FileCheck className="h-4 w-4 mr-2" /> },
+    { label: "Work Experience", content: <WorkExperienceSectionUI data={employeeData.emp_work_exp ?? []} />, icon: <Briefcase className="h-4 w-4 mr-2" /> },
+    { label: "Voluntary Work", content: <VoluntaryWorkSectionUI data={employeeData.emp_voluntary_work ?? []} />, icon: <HeartHandshake className="h-4 w-4 mr-2" /> },
+    { label: "Learning & Development", content: <LDInterventionSectionUI data={employeeData.emp_ldinterventions ?? []} />, icon: <BookOpen className="h-4 w-4 mr-2" /> },
+    { label: "Other Information", content: <div>OTHER INFORMATION</div>, icon: <Info className="h-4 w-4 mr-2" /> },
+>>>>>>> dfa1bb7c7585f58ce08b9747391a7e465de3a9d9
+>>>>>>> 37647b1808a1c8e2bc88e6011c65ec78d00c5088
   ];
 
   return (
