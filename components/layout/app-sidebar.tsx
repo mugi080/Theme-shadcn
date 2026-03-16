@@ -53,32 +53,32 @@ const data = {
       title: "User Profile",
       url: "/user-profile",
       icon: CircleUser,
-      items: [
-        {
-          title: "Personal Profile",
-          url: "#",
-        },
-        {
-          title: "Family Background",
-          url: "#",
-        },
-        {
-          title: "Education",
-          url: "#",
-        },
-        {
-          title: "Work experience",
-          url: "#",
-        },
-                {
-          title: "Learning & Development",
-          url: "#",
-        },
-                {
-          title: "Qualifications",
-          url: "#",
-        },
-      ],
+      // items: [
+      //   {
+      //     title: "Personal Profile",
+      //     url: "#",
+      //   },
+      //   {
+      //     title: "Family Background",
+      //     url: "#",
+      //   },
+      //   {
+      //     title: "Education",
+      //     url: "#",
+      //   },
+      //   {
+      //     title: "Work experience",
+      //     url: "#",
+      //   },
+      //           {
+      //     title: "Learning & Development",
+      //     url: "#",
+      //   },
+      //           {
+      //     title: "Qualifications",
+      //     url: "#",
+      //   },
+      // ],
     },
     {
       title: "Documentation",
