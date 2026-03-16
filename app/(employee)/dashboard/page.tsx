@@ -30,6 +30,7 @@ export default function DashboardPage() {
         const data = await apiFetch(`/protected/view_employee/${employeeId}`);
         if (data.success && data.data) {
           const emp = data.data;
+          console.log("Full API response:", data);
           setUser({
             firstname: emp.firstname || "",
             middlename: emp.middlename || "",
@@ -62,7 +63,10 @@ export default function DashboardPage() {
       const data = await apiFetch(`/protected/update_employee/${employeeId}`, {
         method: "PUT",
         body: JSON.stringify(user),
+        
       });
+
+      
 
       if (data.success) {
         setEditing(false);

@@ -9,6 +9,7 @@ import VoluntaryWorkSectionUI from "@/components/employee-components/personal-in
 import LDInterventionSectionUI from "@/components/employee-components/personal-info-employee/learning&development-ui";
 import EmployeeCard from "@/components/employee-components/personal-info-employee/employee-card-ui";
 import FamilyBackgroundSectionUI from "@/components/employee-components/personal-info-employee/family";
+import OtherInfoSectionUI from "@/components/employee-components/personal-info-employee/other-information";
 import { EmployeeTabs } from "@/components/layout/employee-tabs";
 
 import { User, Users, GraduationCap, FileCheck, Briefcase, HeartHandshake, BookOpen, Info } from "lucide-react";
@@ -63,7 +64,7 @@ const UserProfilePage = () => {
     { label: "Work Experience", content: <WorkExperienceSectionUI data={employeeData.emp_work_exp ?? []} />, icon: <Briefcase className="h-4 w-4 mr-2" /> },
     { label: "Voluntary Work", content: <VoluntaryWorkSectionUI data={employeeData.emp_voluntary_work ?? []} />, icon: <HeartHandshake className="h-4 w-4 mr-2" /> },
     { label: "Learning & Development", content: <LDInterventionSectionUI data={employeeData.emp_ldinterventions ?? []} />, icon: <BookOpen className="h-4 w-4 mr-2" /> },
-    { label: "Other Information", content: <div>OTHER INFORMATION</div>, icon: <Info className="h-4 w-4 mr-2" /> },
+    { label: "Other Information", content: <OtherInfoSectionUI />, icon: <Info className="h-4 w-4 mr-2" /> },
   ];
 
   return (
