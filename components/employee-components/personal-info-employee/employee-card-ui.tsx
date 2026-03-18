@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { User, Loader2, Pencil } from "lucide-react";
 import { getEmployeeId, logout, apiFetch } from "@/lib/api/personal-info/auth";
-import EditProfileModal from "@/components/editemployee/editmodalprofile";
+import EditProfileModal from "../editemployee/editmodalprofile";
 
 export default function EmployeeCard() {
   const [info, setInfo] = useState<any>(null);
