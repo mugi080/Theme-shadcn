@@ -20,8 +20,9 @@ export default function Field({
 }: FieldProps) {
   const [focused, setFocused] = useState(false);
 
-  // Label floats when the field is focused OR has a value
-  const isFloated = focused || (value !== "" && value !== null && value !== undefined);
+  // Date inputs always show mm/dd/yyyy so label must always float
+  // For other types, float when focused or has a value
+  const isFloated = type === "date" || focused || (value !== "" && value !== null && value !== undefined);
 
   return (
     <div className={`relative ${className}`} style={{ paddingTop: 0, marginBottom: 4 }}>
