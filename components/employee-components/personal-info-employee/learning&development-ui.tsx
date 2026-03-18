@@ -124,7 +124,7 @@ export default function LDInterventionSectionUI({ data }: Props) {
                   {ld.ldintervention_type?.type_name || "—"}
                 </p>
               </div>
-
+ 
             </div>
           </div>
         ))}

@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 
 import { getEmployeeId, logout, apiFetch } from "@/lib/api/personal-info/auth";
+import AdditionalQuestionsSectionUI from "@/components/employee-components/personal-info-employee/question";
 
 const UserProfilePage = () => {
   const [employeeData, setEmployeeData] = useState<any>(null);
@@ -130,8 +131,8 @@ const UserProfilePage = () => {
     {
       label: "Questions",
       icon: <HelpCircle className="h-4 w-4 mr-2" />,
-      completed: false,
-      content: <div className="p-4 text-muted-foreground">Questions Content</div>,
+      completed: !!(employeeData.emp_addtl?.length),
+      content: <div className="p-4 text-muted-foreground"><AdditionalQuestionsSectionUI data={employeeData.emp_addtl ?? []} /></div>,
     },
     {
       label: "Reference & GIS",
