@@ -26,7 +26,7 @@ export default function WorkExperienceSection({
   isOpen,
   onToggle,
   onArrayChange,
-  onAdd,
+  onAdd,  
   onDelete,
 }: WorkExperienceSectionProps) {
   return (
