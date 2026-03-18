@@ -1,5 +1,9 @@
 import { API_BASE } from "@/lib/base";
 
+export const getToken = () => {
+  // Function implementation
+};
+
 // Login via HospCoth API directly
 export async function login(username: string, password: string) {
   const res = await fetch(`${API_BASE}/web_login`, {

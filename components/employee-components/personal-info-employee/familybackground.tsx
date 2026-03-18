@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { getEmployeeId, getToken, logout, apiFetch } from "@/lib/api/personal-info/auth";
+import { getEmployeeId, getToken, logout, apiFetch } from "@/lib/api/personal-info-employee/auth";
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
