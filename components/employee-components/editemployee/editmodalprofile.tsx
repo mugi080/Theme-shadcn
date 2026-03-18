@@ -216,10 +216,10 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Edi
           padding: 8px 14px;
           border-radius: 10px;
           border: 1.5px dashed #cbd5e1;
-          background: transparent;
+          background: #0070f3;
           font-size: 12px;
           font-weight: 600;
-          color: #64748b;
+          color: ##ffffff;
           cursor: pointer;
           transition: all 0.15s;
           width: 100%;
