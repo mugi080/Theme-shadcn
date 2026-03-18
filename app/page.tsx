@@ -10,6 +10,7 @@ import {
   Calendar, Megaphone, ArrowRight, Menu, X, Building2,
   ClipboardList, Award, Clock, MapPin, ChevronDown, Sun, Moon
 } from "lucide-react";
+import { ModeToggle } from "@/components/layout/toggle-mode";
 
 // ─── Theme tokens ─────────────────────────────────────────────────────────────
 
@@ -646,7 +647,7 @@ export default function HRISLandingPage() {
               </a>
             ))}
           </div>
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2">          
             <button
               onClick={() => setDark(v => !v)}
               title={dark ? "Switch to Light Mode" : "Switch to Dark Mode"}
@@ -654,12 +655,13 @@ export default function HRISLandingPage() {
               style={{ backgroundColor: t.toggleBg, color: t.toggleColor }}>
               {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
+
             <Button variant="outline" size="sm"
               className="hris-btn h-8 text-xs"
               style={{ borderColor: accent, color: accent, backgroundColor: "transparent" }}>
               Employee Login
             </Button>
-            
+   
           </div>
           <div className="md:hidden flex items-center gap-1">
             <button

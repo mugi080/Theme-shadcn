@@ -8,10 +8,7 @@ import WorkExperienceSectionUI from "@/components/employee-components/personal-i
 import EligibilitySectionUI from "@/components/employee-components/personal-info-employee/eligibility-ui";
 import VoluntaryWorkSectionUI from "@/components/employee-components/personal-info-employee/voluntary-work-ui";
 import LDInterventionSectionUI from "@/components/employee-components/personal-info-employee/learning&development-ui";
-
-import OthersSectionUI from "@/components/employee-components/personal-info-employee/others";
-import ReferenceGisSectionUI from "@/components/employee-components/personal-info-employee/reference-gis";
-
+import AdditionalInfoSectionUI from "@/components/employee-components/personal-info-employee/add-info-wrapper";
 import EmployeeCard from "@/components/employee-components/personal-info-employee/employee-card-ui";
 import { EmployeeTabs } from "@/components/layout/employee-tabs";
 
@@ -119,29 +116,24 @@ const UserProfilePage = () => {
       content: <LDInterventionSectionUI data={employeeData.emp_ldinterventions ?? []} />,
     },
     {
-      label: "Other Information",
+      label: "Additional Information",
       icon: <Info className="h-4 w-4 mr-2" />,
-      completed: !!(employeeData.emp_skills?.length || employeeData.emp_recognitions?.length || employeeData.emp_memberships?.length),
-      content: <OthersSectionUI data={{
-        emp_skills: employeeData.emp_skills ?? [],
-        emp_recognitions: employeeData.emp_recognitions ?? [],
-        emp_memberships: employeeData.emp_memberships ?? []
-      }} />,
-    },
-    {
-      label: "Questions",
-      icon: <HelpCircle className="h-4 w-4 mr-2" />,
-      completed: !!(employeeData.emp_addtl?.length),
-      content: <div className="p-4 text-muted-foreground"><AdditionalQuestionsSectionUI data={employeeData.emp_addtl ?? []} /></div>,
-    },
-    {
-      label: "Reference & GIS",
-      icon: <MapPin className="h-4 w-4 mr-2" />,
-      completed: !!(employeeData.emp_references?.length || employeeData.emp_identifications?.length),
-      content: <ReferenceGisSectionUI data={{
-        emp_references: employeeData.emp_references ?? [],
-        emp_identifications: employeeData.emp_identifications ?? []
-      }} />,
+      completed: !!(
+        employeeData.emp_skills?.length ||
+        employeeData.emp_recognitions?.length ||
+        employeeData.emp_memberships?.length ||
+        employeeData.emp_addtl?.length ||
+        employeeData.emp_references?.length ||
+        employeeData.emp_identifications?.length
+      ),
+      content: <AdditionalInfoSectionUI
+        skills={employeeData.emp_skills ?? []}
+        recognitions={employeeData.emp_recognitions ?? []}
+        memberships={employeeData.emp_memberships ?? []}
+        questions={employeeData.emp_addtl ?? []}
+        references={employeeData.emp_references ?? []}
+        identifications={employeeData.emp_identifications ?? []}
+      />,
     },
   ];
 
@@ -157,3 +149,4 @@ const UserProfilePage = () => {
 };
 
 export default UserProfilePage;
+

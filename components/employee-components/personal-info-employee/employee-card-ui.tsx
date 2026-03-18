@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { User, Loader2, Pencil } from "lucide-react";
 import { getEmployeeId, logout, apiFetch } from "@/lib/api/personal-info/auth";
-import EditProfileModal from "./edit-profile-modal";
+import EditProfileModal from "@/components/editemployee/editmodalprofile";
 
 export default function EmployeeCard() {
   const [info, setInfo] = useState<any>(null);
@@ -47,8 +47,7 @@ export default function EmployeeCard() {
   return (
     <>
       <div className="bg-card rounded-3xl p-6 md:p-8 shadow-sm border border-border flex flex-col md:flex-row items-center gap-6 mb-6">
-        <div className="w-24 h-24 md:w-32 md:h-32 bg-accent/20{background-color:color-mix(in oklab, var(--accent) 20%, transparent); rounded-full flex items-center justify-center text--color: #004e3b;
-}">
+        <div className="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center bg-muted text-muted-foreground border border-border shadow-sm">
           <User size={48} strokeWidth={1.5} />
         </div>
 
