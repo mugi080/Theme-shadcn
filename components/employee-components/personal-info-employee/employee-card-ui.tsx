@@ -47,7 +47,7 @@ export default function EmployeeCard() {
   return (
     <>
       <div className="bg-card rounded-3xl p-6 md:p-8 shadow-sm border border-border flex flex-col md:flex-row items-center gap-6 mb-6">
-        <div className="w-24 h-24 md:w-32 md:h-32 bg-accent/20 rounded-full flex items-center justify-center text-accent">
+        <div className="w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center bg-muted text-muted-foreground border border-border shadow-sm">
           <User size={48} strokeWidth={1.5} />
         </div>
 

@@ -135,7 +135,7 @@ export function EmployeeTabs({ tabs }: EmployeeTabsProps) {
 
         <TabsList
           ref={tabsListRef}
-          className="emp-tabs-list flex lg:grid lg:grid-cols-5 w-full overflow-x-auto lg:overflow-visible bg-transparent gap-0 p-0 h-auto justify-start lg:justify-stretch"
+          className="emp-tabs-list flex lg:grid lg:grid-cols-4 w-full overflow-x-auto lg:overflow-visible bg-transparent gap-0 p-0 h-auto justify-start lg:justify-stretch"
         >
           {tabsWithIcons.map((tab) => (
             <TabsTrigger
