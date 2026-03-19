@@ -12,6 +12,7 @@ type TabItem = {
   label: string
   content: React.ReactNode
   icon?: React.ReactNode
+  completed?: boolean
 }
 
 interface EmployeeTabsProps {
@@ -19,8 +20,8 @@ interface EmployeeTabsProps {
 }
 
 export function EmployeeTabs({ tabs }: EmployeeTabsProps) {
+
   const [activeTab, setActiveTab] = React.useState(tabs[0]?.label)
-  const [indicatorStyle, setIndicatorStyle] = React.useState({ left: 0, width: 0 })
   const [animDir, setAnimDir] = React.useState<"left" | "right">("right")
   const [animKey, setAnimKey] = React.useState(0)
 
@@ -43,35 +44,11 @@ export function EmployeeTabs({ tabs }: EmployeeTabsProps) {
     icon: tab.icon || defaultIcons[index] || defaultIcons[0],
   }))
 
-  // Update indicator position whenever activeTab changes
-  const updateIndicator = React.useCallback(() => {
+  // Scroll active tab into view (mobile)
+  React.useEffect(() => {
     const el = tabRefs.current[activeTab]
-    const container = tabsListRef.current
-    if (el && container) {
-      const containerRect = container.getBoundingClientRect()
-      const elRect = el.getBoundingClientRect()
-      setIndicatorStyle({
-        left: elRect.left - containerRect.left + container.scrollLeft,
-        width: elRect.width,
-      })
-    }
-  }, [activeTab])
-
-  React.useEffect(() => {
-    // Small delay to let layout settle
-    const raf = requestAnimationFrame(updateIndicator)
-    return () => cancelAnimationFrame(raf)
-  }, [updateIndicator])
-
-  // Scroll active tab into view
-  React.useEffect(() => {
-    const activeTabElement = tabRefs.current[activeTab]
-    if (activeTabElement && tabsListRef.current) {
-      activeTabElement.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      })
+    if (el && tabsListRef.current) {
+      el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" })
     }
   }, [activeTab])
 
@@ -85,16 +62,12 @@ export function EmployeeTabs({ tabs }: EmployeeTabsProps) {
 
   const handlers = useSwipeable({
     onSwipedLeft: () => {
-      const currentIndex = tabs.findIndex(t => t.label === activeTab)
-      if (currentIndex < tabs.length - 1) {
-        handleTabChange(tabs[currentIndex + 1].label)
-      }
+      const i = tabs.findIndex(t => t.label === activeTab)
+      if (i < tabs.length - 1) handleTabChange(tabs[i + 1].label)
     },
     onSwipedRight: () => {
-      const currentIndex = tabs.findIndex(t => t.label === activeTab)
-      if (currentIndex > 0) {
-        handleTabChange(tabs[currentIndex - 1].label)
-      }
+      const i = tabs.findIndex(t => t.label === activeTab)
+      if (i > 0) handleTabChange(tabs[i - 1].label)
     },
     preventScrollOnSwipe: true,
     trackMouse: true,
@@ -104,93 +77,89 @@ export function EmployeeTabs({ tabs }: EmployeeTabsProps) {
   return (
     <>
       <style>{`
-        @keyframes slideInFromRight {
-          from { opacity: 0; transform: translateX(28px); }
-          to   { opacity: 1; transform: translateX(0); }
+        /* Employee Tabs Dark/Light Mode */
+        .emp-tab {
+          border-radius: 0 !important;
+          background: transparent !important;
+          box-shadow: none !important;
+          color: var(--color-muted-foreground);
+          transition: color 0.15s, border-color 0.15s;
         }
-        @keyframes slideInFromLeft {
-          from { opacity: 0; transform: translateX(-28px); }
-          to   { opacity: 1; transform: translateX(0); }
+
+        /* Mobile: bottom border only on active tab */
+        .emp-tab {
+          border-bottom: 2px solid transparent;
+          padding-bottom: calc(0.75rem - 2px) !important;
         }
-        .tab-enter-right {
-          animation: slideInFromRight 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+        .emp-tab[data-state="active"] {
+          color: var(--color-primary);
+          border-bottom: 2px solid var(--color-primary);
         }
-        .tab-enter-left {
-          animation: slideInFromLeft 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+        .emp-tab:hover {
+          color: var(--color-primary);
+          background: transparent !important;
         }
-        .tabs-indicator {
-          position: absolute;
-          bottom: 0;
-          height: 2px;
-          background: #3b82f6;
-          border-radius: 2px 2px 0 0;
-          transition: left 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-                      width 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-          pointer-events: none;
+
+        /* Completed dots */
+        .emp-tab .completed-dot {
+          color: var(--color-green-500, #22c55e);
         }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .emp-tab .incomplete-dot {
+          color: var(--color-muted-foreground);
+        }
+
+        /* Mobile: single gray line at very bottom of tab strip */
+        .emp-tabs-list {
+          border-bottom: 1px solid var(--color-border);
+        }
+
+        /* Desktop: every tab gets a gray bottom border so BOTH rows have a line.
+           Active tab overrides with primary color. */
+        @media (min-width: 1024px) {
+          .emp-tab {
+            border-bottom: 2px solid var(--color-border);
+          }
+          .emp-tab[data-state="active"] {
+            border-bottom: 2px solid var(--color-primary);
+          }
+          /* Remove the list-level border — each tab row handles its own line now */
+          .emp-tabs-list {
+            border-bottom: none;
+          }
+        }
       `}</style>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        {/* Tabs List Container */}
-        <div className="relative">
-          <TabsList
-            ref={tabsListRef}
-            className="flex lg:grid lg:grid-cols-4 w-full overflow-x-auto lg:overflow-visible bg-transparent gap-0 p-0 h-auto justify-start lg:justify-stretch scrollbar-hide"
-          >
-            {tabsWithIcons.map((tab) => (
-              <TabsTrigger
-                key={tab.label}
-                value={tab.label}
-                ref={(el) => { tabRefs.current[tab.label] = el }}
-                className={`
-                  inline-flex items-center justify-center
-                  px-3 lg:px-4 py-3 text-sm font-medium
-                  whitespace-nowrap
-                  transition-colors duration-200
-                  border-0 outline-none shadow-none
-                  bg-transparent
-                  rounded-none
-                  text-muted-foreground
-                  hover:text-foreground
-                  data-[state=active]:text-blue-600
-                  data-[state=active]:font-semibold
-                  data-[state=active]:bg-transparent
-                  data-[state=active]:shadow-none
-                  flex-1 lg:flex-none
-                  min-w-fit
-                  pb-3
-                `}
-              >
-                {tab.icon}
-                <span className="truncate">{tab.label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
 
-          {/* Bottom border line */}
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-200" />
-
-          {/* Animated active indicator */}
-          <div
-            className="tabs-indicator"
-            style={{ left: indicatorStyle.left, width: indicatorStyle.width }}
-          />
-        </div>
-
-        {/* Content Area with Swipe */}
-        <div {...handlers} className="relative mt-10 lg:mt-12 min-h-[400px] overflow-hidden">
+        <TabsList
+          ref={tabsListRef}
+          className="emp-tabs-list flex lg:grid lg:grid-cols-4 w-full overflow-x-auto lg:overflow-visible bg-transparent gap-0 p-0 h-auto justify-start lg:justify-stretch"
+        >
           {tabsWithIcons.map((tab) => (
-            <TabsContent
+            <TabsTrigger
               key={tab.label}
               value={tab.label}
-              className="mt-0 border-0 p-0 focus-visible:outline-none focus-visible:ring-0"
+              ref={(el) => { tabRefs.current[tab.label] = el }}
+              className="emp-tab inline-flex items-center justify-center px-3 lg:px-4 py-3 text-sm whitespace-nowrap"
             >
+              {tab.icon}
+              <span>{tab.label}</span>
+              <span className={`ml-2 text-xs ${tab.completed ? "completed-dot" : "incomplete-dot"}`}>
+                {tab.completed ? "●" : "○"}
+              </span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        <div {...handlers} className="relative mt-10 lg:mt-12 min-h-[400px] overflow-hidden">
+          {tabsWithIcons.map((tab) => (
+            <TabsContent key={tab.label} value={tab.label}>
               <div
                 key={`${tab.label}-${animKey}`}
                 className={activeTab === tab.label
-                  ? (animDir === "right" ? "tab-enter-right" : "tab-enter-left")
+                  ? (animDir === "right" ? "animate-slide-in-right" : "animate-slide-in-left")
                   : ""}
               >
                 {tab.content}
@@ -198,6 +167,7 @@ export function EmployeeTabs({ tabs }: EmployeeTabsProps) {
             </TabsContent>
           ))}
         </div>
+
       </Tabs>
     </>
   )

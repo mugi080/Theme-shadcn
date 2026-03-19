@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, Calendar, MapPin, Pencil, Trash2, ShieldCheck } from "lucide-react";
+import { Award, Calendar, MapPin, ShieldCheck } from "lucide-react";
 
 interface Eligibility {
   eligibility_id: string;
@@ -17,30 +17,37 @@ interface Props {
   data: Eligibility[];
 }
 
-export default function EligibilitySectionUI({ data }: Props) {
+const formatValue = (value: string | null | undefined): string => {
+  if (!value || value.trim() === "" || value.toLowerCase() === "n/a") return "—";
+  return value;
+};
 
-  const eligibilities = data ?? [];
-
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return "N/A";
-
-    return new Date(dateStr).toLocaleDateString("en-US", {
+const formatDate = (dateStr: string | null): string => {
+  if (!dateStr) return "—";
+  try {
+    return new Date(dateStr).toLocaleDateString("en-PH", {
       year: "numeric",
       month: "short",
-      day: "numeric",
+      day: "numeric"
     });
-  };
+  } catch {
+    return dateStr;
+  }
+};
+
+export default function EligibilitySectionUI({ data }: Props) {
+  const eligibilities = data ?? [];
 
   return (
-    <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
-      <div className="flex flex-col gap-4 md:gap-6 max-w-6xl mx-auto">
+    <div className="p-4 md:p-8 bg-background min-h-screen text-foreground">
+      <div className="max-w-6xl mx-auto flex flex-col gap-6">
 
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
+        <h2 className="text-xl md:text-2xl font-bold text-foreground">
           Civil Service Eligibility
         </h2>
 
         {eligibilities.length === 0 && (
-          <p className="text-gray-500 italic">
+          <p className="text-muted-foreground italic">
             No eligibility records found.
           </p>
         )}
@@ -48,114 +55,98 @@ export default function EligibilitySectionUI({ data }: Props) {
         {eligibilities.map((elig) => (
           <div
             key={elig.eligibility_id}
-            className="bg-white border border-gray-100 rounded-2xl md:rounded-3xl shadow-sm p-5 md:p-6 
+            className="bg-card border border-border rounded-2xl md:rounded-3xl shadow-sm p-5 md:p-6 
                        flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow"
           >
 
-            {/* Left Section */}
+            {/* Left Section: Icon + Title + Place + Status */}
             <div className="flex items-center gap-4 md:gap-5 flex-[1.5] min-w-0">
-
-              <div className="p-3 md:p-4 bg-purple-50 rounded-xl md:rounded-2xl shrink-0">
-                <Award className="text-purple-500 w-6 h-6 md:w-8 md:h-8" strokeWidth={1.5} />
+              <div className="p-3 md:p-4 bg-violet-50 dark:bg-violet-900/40 rounded-xl md:rounded-2xl shrink-0">
+                <Award
+                  className="text-violet-500 dark:text-violet-400 w-6 h-6 md:w-8 md:h-8"
+                  strokeWidth={1.5}
+                />
               </div>
 
-              <div className="space-y-1 min-w-0">
-
-                <h3 className="text-base md:text-lg font-bold text-gray-900 leading-tight break-words">
-                  {elig.cse_particular}
+              <div className="min-w-0 space-y-1">
+                <h3 className="text-base md:text-lg font-bold text-foreground leading-tight truncate">
+                  {formatValue(elig.cse_particular)}
                 </h3>
-
-                <div className="flex flex-wrap items-center gap-1.5 text-gray-500 text-xs md:text-sm">
-
-                  <MapPin size={14} className="shrink-0" />
-
-                  <span className="truncate">
-                    {elig.exam_place_conferment}
-                  </span>
-
-                  {elig.status === "Active" && (
-                    <span className="bg-blue-100 text-blue-700 text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider shrink-0">
-                      {elig.status}
+                
+                <div className="flex flex-wrap items-center gap-2 text-muted-foreground text-xs md:text-sm">
+                  <div className="flex items-center gap-1 truncate">
+                    <MapPin size={14} className="shrink-0" />
+                    <span className="truncate">
+                      {formatValue(elig.exam_place_conferment)}
+                    </span>
+                  </div>
+                  
+                  {elig.status && elig.status.trim() !== "" && (
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide shrink-0 ${
+                      elig.status.toLowerCase() === "active"
+                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"
+                        : "bg-muted text-muted-foreground"
+                    }`}>
+                      {formatValue(elig.status)}
                     </span>
                   )}
-
                 </div>
-
               </div>
             </div>
 
-            {/* Middle Section */}
-            <div className="grid grid-cols-2 md:flex md:flex-[2] gap-4 md:gap-0">
-
+            {/* Right Section: Details Grid (Rating, License, Date, Validity) */}
+            <div className="grid grid-cols-2 md:grid-cols-4 flex-[2] gap-4 md:gap-6 border-t md:border-t-0 pt-4 md:pt-0">
+              
               {/* Rating */}
-              <div className="flex flex-col items-start gap-1 md:flex-1">
-
-                <div className="flex items-center gap-2 text-gray-400">
-                  <ShieldCheck size={16} className="md:w-[18px] md:h-[18px]" />
+              <div className="flex flex-col items-start gap-1">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <ShieldCheck size={16} />
                   <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide">
                     Rating
                   </span>
                 </div>
-
-                <div className="md:ml-7">
-                  <p className="text-sm font-bold text-gray-800">
-                    {elig.rating}%
-                  </p>
-
-                  <p className="text-[10px] md:text-[11px] text-gray-500">
-                    {formatDate(elig.exam_date_conferment)}
-                  </p>
-                </div>
-
+                <p className="text-sm font-bold text-foreground">
+                  {formatValue(elig.rating)}{elig.rating && !elig.rating.endsWith("%") ? "%" : ""}
+                </p>
               </div>
 
               {/* License */}
-              <div className="flex flex-col items-start gap-1 md:flex-1">
-
-                <div className="flex items-center gap-2 text-gray-400">
-                  <Calendar size={16} className="md:w-[18px] md:h-[18px]" />
+              <div className="flex flex-col items-start gap-1">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Award size={16} />
                   <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide">
                     License
                   </span>
                 </div>
-
-                <div className="md:ml-7">
-
-                  <p className="text-sm font-black text-gray-900 truncate max-w-[120px] md:max-w-none">
-                    {elig.license_no || "N/A"}
-                  </p>
-
-                  <p className="text-[10px] md:text-[11px] text-gray-500">
-                    Exp: {formatDate(elig.validity_date)}
-                  </p>
-
-                </div>
-
+                <p className="text-sm font-bold text-foreground font-mono truncate w-full">
+                  {formatValue(elig.license_no)}
+                </p>
               </div>
 
-            </div>
+              {/* Date */}
+              <div className="flex flex-col items-start gap-1">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Calendar size={16} />
+                  <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide">
+                    Date
+                  </span>
+                </div>
+                <p className="text-sm font-bold text-foreground">
+                  {formatDate(elig.exam_date_conferment)}
+                </p>
+              </div>
 
-            {/* Actions */}
-            <div className="flex flex-row md:flex-col items-center justify-between md:justify-center gap-2 pt-4 md:pt-0 border-t md:border-t-0 md:ml-4">
-
-              <span className="md:hidden text-[10px] font-bold text-gray-400 uppercase">
-                Actions
-              </span>
-
-              <span className="hidden md:block text-[10px] font-bold text-gray-400 uppercase mb-1">
-                Actions
-              </span>
-
-              <div className="flex items-center gap-3">
-
-                <button className="p-2 md:p-2.5 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors">
-                  <Pencil size={18} fill="currentColor" className="text-white" />
-                </button>
-
-                <button className="p-2 md:p-2.5 bg-red-100 text-red-500 rounded-full hover:bg-red-200 transition-colors">
-                  <Trash2 size={18} fill="currentColor" className="text-white" />
-                </button>
-
+              {/* Validity */}
+              <div className="flex flex-col items-start gap-1">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Calendar size={16} />
+                  <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide">
+                    Valid Until
+                  </span>
+                </div>
+                <p className="text-sm font-bold text-foreground">
+                  {formatDate(elig.validity_date)}
+                </p>
               </div>
 
             </div>
