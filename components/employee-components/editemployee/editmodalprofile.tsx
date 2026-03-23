@@ -5,13 +5,14 @@ import { X, Loader2, CheckCircle2 } from "lucide-react";
 import { apiFetch } from "@/lib/api/personal-info/auth";
 
 /* Sections */
-import PersonalInfoSection from "./sections/personalinfo";
+import PersonalInfoSection from "./sections/personal-info";
+import FamilyBackgroundSection from "./sections/family-background-section";
 import EducationSection from "./sections/education-section";
-import WorkExperienceSection from "./sections/workexperiencesection";
-import EligibilitySection from "./sections/eligibilitysection";
-import VoluntaryWorkSection from "./sections/voluntarysection";
+import WorkExperienceSection from "./sections/work-experience-section";
+import EligibilitySection from "./sections/eligibility-section";
+import VoluntaryWorkSection from "./sections/voluntary-section";
 import LearningDevelopmentSection from "./sections/learning&developmentsection";
-import FamilyBackgroundSection from "./sections/familybgsection";
+
 
 /* UI Components */
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -150,13 +151,10 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Pro
       "sex", "civil_status", "blood_type", "height", "weight",
       "mobile_no", "email_address", "telephone_no",
       "citizenship", "citizenship_category", "citizenship_country",
-      "ra_house_block_lotno", "ra_street", "ra_subdivision_village", "ra_barangay",
-      "ra_city_municipality", "ra_province", "ra_zipcode",
-      "pa_house_block_lotno", "pa_street", "pa_subdivision_village", "pa_barangay",
-      "pa_city_municipality", "pa_province", "pa_zipcode",
-      "family",           // ✅ whole nested object, emp_children inside it
-      "emp_education", "emp_work_exp", "emp_eligibility",
-      "emp_voluntary_work", "emp_ldinterventions",
+      "ra_house_block_lotno", "ra_street", "ra_subdivision_village", "ra_barangay", "ra_city_municipality", "ra_province", "ra_zipcode",
+      "pa_house_block_lotno", "pa_street", "pa_subdivision_village", "pa_barangay", "pa_city_municipality", "pa_province", "pa_zipcode",
+
+      "family","emp_children","emp_education", "emp_work_exp", "emp_eligibility", "emp_voluntary_work", "emp_ldinterventions",
     ];
 
     keys.forEach((key) => {
@@ -267,49 +265,20 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Pro
               onToggle={() => toggleSection("personal")}
               onFieldChange={handleFieldChange}
             />
-
-            {/* ✅ family = formData.family, children = formData.family.emp_children */}
             <FamilyBackgroundSection
-              family={formData.family}
-              children={formData.family?.emp_children ?? []}
+              formData={formData.family ?? {}}
+              records={formData.family?.emp_children ?? []}
               isOpen={!!openSections.family}
               onToggle={() => toggleSection("family")}
-              onFamilyChange={handleFamilyChange}
-              onArrayChange={handleChildArrayChange}
-              onAdd={addChild}
-              onDelete={deleteChild}
+              onFieldChange={handleFieldChange}
+              {...arrayProps}
             />
 
-            <EducationSection
-              records={formData.emp_education ?? []}
-              isOpen={!!openSections.education}
-              onToggle={() => toggleSection("education")}
-              {...arrayProps}
-            />
-            <WorkExperienceSection
-              records={formData.emp_work_exp ?? []}
-              isOpen={!!openSections.work}
-              onToggle={() => toggleSection("work")}
-              {...arrayProps}
-            />
-            <EligibilitySection
-              records={formData.emp_eligibility ?? []}
-              isOpen={!!openSections.eligibility}
-              onToggle={() => toggleSection("eligibility")}
-              {...arrayProps}
-            />
-            <VoluntaryWorkSection
-              records={formData.emp_voluntary_work ?? []}
-              isOpen={!!openSections.voluntary}
-              onToggle={() => toggleSection("voluntary")}
-              {...arrayProps}
-            />
-            <LearningDevelopmentSection
-              records={formData.emp_ldinterventions ?? []}
-              isOpen={!!openSections.ld}
-              onToggle={() => toggleSection("ld")}
-              {...arrayProps}
-            />
+            <EducationSection records={formData.emp_education ?? []} isOpen={!!openSections.education} onToggle={() => toggleSection("education")} {...arrayProps} />
+            <WorkExperienceSection records={formData.emp_work_exp ?? []} isOpen={!!openSections.work} onToggle={() => toggleSection("work")} {...arrayProps} />
+            <EligibilitySection records={formData.emp_eligibility ?? []} isOpen={!!openSections.eligibility} onToggle={() => toggleSection("eligibility")} {...arrayProps} />
+            <VoluntaryWorkSection records={formData.emp_voluntary_work ?? []} isOpen={!!openSections.voluntary} onToggle={() => toggleSection("voluntary")} {...arrayProps} />
+            <LearningDevelopmentSection records={formData.emp_ldinterventions ?? []} isOpen={!!openSections.ld} onToggle={() => toggleSection("ld")} {...arrayProps} />
           </div>
 
           {/* ── Footer ── */}
