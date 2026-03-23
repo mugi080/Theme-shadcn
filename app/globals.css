@@ -127,9 +127,6 @@
 }
 
 
-<<<<<<< HEAD
- 
-=======
 @layer utilities {
   @keyframes accordion-open {
     from {
@@ -145,4 +142,3 @@
     animation: accordion-open 0.22s ease both;
   }
 }
->>>>>>> 93b366b634966e5f72efe350645a1b68961140fd

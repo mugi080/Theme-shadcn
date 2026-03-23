@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { useState } from "react";
 import { Heart, ChevronDown, Plus, Trash2 } from "lucide-react";
@@ -8,8 +8,8 @@ import Field from "../field";
 const BLANK_CHILD = { child_name: "", child_birthdate: "", status: "" };
 
 interface FamilyBackgroundSectionProps {
-  family?: any;       // ✅ optional now
-  children?: any[];   // ✅ optional now
+  family?: any;       // spouse, father, mother
+  children?: any[];   // list of children
   isOpen: boolean;
   onToggle: () => void;
   onFamilyChange: (field: string, value: any) => void;
@@ -82,8 +82,8 @@ function FloatSelect({
 
 // ── MAIN ─────────────────────────────────────────────────────────
 export default function FamilyBackgroundSection({
-  family = {},          // ✅ default
-  children = [],        // ✅ default
+  family = {},
+  children = [],
   isOpen,
   onToggle,
   onFamilyChange,
@@ -91,9 +91,6 @@ export default function FamilyBackgroundSection({
   onAdd,
   onDelete,
 }: FamilyBackgroundSectionProps) {
-
-  const f = family || {};
-  const childList = children || [];
 
   return (
     <AccordionSection
@@ -108,103 +105,54 @@ export default function FamilyBackgroundSection({
 
         {/* ── Spouse ── */}
         <Divider label="Spouse" />
-        <Field label="First Name"  value={f.spouse_firstname ?? ""}  onChange={(v) => onFamilyChange("spouse_firstname", v)} />
-        <Field label="Middle Name" value={f.spouse_middlename ?? ""} onChange={(v) => onFamilyChange("spouse_middlename", v)} />
-        <Field label="Last Name"   value={f.spouse_surname ?? ""}     onChange={(v) => onFamilyChange("spouse_surname", v)} />
-        <Field label="Name Ext."   value={f.spouse_name_ext ?? ""}    onChange={(v) => onFamilyChange("spouse_name_ext", v)} />
-
-        <Field label="Occupation" value={f.spouse_occupation ?? ""}
-          onChange={(v) => onFamilyChange("spouse_occupation", v)} className="sm:col-span-2" />
-
-        <Field label="Employer / Business Name"
-          value={f.spouse_employer_business_name ?? ""}
-          onChange={(v) => onFamilyChange("spouse_employer_business_name", v)}
-          className="sm:col-span-2"
-        />
-
-        <Field label="Business Address"
-          value={f.spouse_business_address ?? ""}
-          onChange={(v) => onFamilyChange("spouse_business_address", v)}
-          className="sm:col-span-2"
-        />
-
-        <Field label="Telephone No."
-          value={f.spouse_telephone_no ?? ""}
-          onChange={(v) => onFamilyChange("spouse_telephone_no", v)}
-        />
+        <Field label="First Name"  value={family.spouse_firstname ?? ""}  onChange={(v) => onFamilyChange("spouse_firstname", v)} />
+        <Field label="Middle Name" value={family.spouse_middlename ?? ""} onChange={(v) => onFamilyChange("spouse_middlename", v)} />
+        <Field label="Last Name"   value={family.spouse_surname ?? ""}    onChange={(v) => onFamilyChange("spouse_surname", v)} />
+        <Field label="Name Ext."   value={family.spouse_name_ext ?? ""}   onChange={(v) => onFamilyChange("spouse_name_ext", v)} />
+        <Field label="Occupation"  value={family.spouse_occupation ?? ""} onChange={(v) => onFamilyChange("spouse_occupation", v)} className="sm:col-span-2" />
+        <Field label="Employer / Business Name" value={family.spouse_employer_business_name ?? ""} onChange={(v) => onFamilyChange("spouse_employer_business_name", v)} className="sm:col-span-2" />
+        <Field label="Business Address" value={family.spouse_business_address ?? ""} onChange={(v) => onFamilyChange("spouse_business_address", v)} className="sm:col-span-2" />
+        <Field label="Telephone No." value={family.spouse_telephone_no ?? ""} onChange={(v) => onFamilyChange("spouse_telephone_no", v)} />
 
         {/* ── Father ── */}
         <Divider label="Father" />
-        <Field label="First Name"  value={f.father_firstname ?? ""}  onChange={(v) => onFamilyChange("father_firstname", v)} />
-        <Field label="Middle Name" value={f.father_middlename ?? ""} onChange={(v) => onFamilyChange("father_middlename", v)} />
-        <Field label="Last Name"   value={f.father_surname ?? ""}    onChange={(v) => onFamilyChange("father_surname", v)} />
-        <Field label="Name Ext."   value={f.father_name_ext ?? ""}   onChange={(v) => onFamilyChange("father_name_ext", v)} />
+        <Field label="First Name"  value={family.father_firstname ?? ""}  onChange={(v) => onFamilyChange("father_firstname", v)} />
+        <Field label="Middle Name" value={family.father_middlename ?? ""} onChange={(v) => onFamilyChange("father_middlename", v)} />
+        <Field label="Last Name"   value={family.father_surname ?? ""}    onChange={(v) => onFamilyChange("father_surname", v)} />
+        <Field label="Name Ext."   value={family.father_name_ext ?? ""}   onChange={(v) => onFamilyChange("father_name_ext", v)} />
 
         {/* ── Mother ── */}
         <Divider label="Mother" />
-        <Field label="First Name"  value={f.mother_firstname ?? ""}  onChange={(v) => onFamilyChange("mother_firstname", v)} />
-        <Field label="Middle Name" value={f.mother_middlename ?? ""} onChange={(v) => onFamilyChange("mother_middlename", v)} />
-        <Field label="Last Name"   value={f.mother_surname ?? ""}    onChange={(v) => onFamilyChange("mother_surname", v)} />
+        <Field label="First Name"  value={family.mother_firstname ?? ""}  onChange={(v) => onFamilyChange("mother_firstname", v)} />
+        <Field label="Middle Name" value={family.mother_middlename ?? ""} onChange={(v) => onFamilyChange("mother_middlename", v)} />
+        <Field label="Last Name"   value={family.mother_surname ?? ""}    onChange={(v) => onFamilyChange("mother_surname", v)} />
 
         {/* ── Children ── */}
-        <Divider label={`Children (${childList.length})`} />
+        <Divider label={`Children (${children.length})`} />
 
-        {childList.length === 0 && (
-          <p className="sm:col-span-2 text-xs text-slate-400 italic">
-            No children records yet.
-          </p>
+        {children.length === 0 && (
+          <p className="sm:col-span-2 text-xs text-slate-400 italic">No children records yet.</p>
         )}
 
-        {childList.map((child: any, i: number) => (
+        {children.map((child: any, i: number) => (
           <div key={child.children_id ?? i} className="record-card sm:col-span-2">
-            <button
-              className="delete-btn"
-              onClick={() => onDelete("emp_children", i)}
-            >
+            <button className="delete-btn" onClick={() => onDelete("emp_children", i)}>
               <Trash2 size={13} />
             </button>
-
             <p className="record-index">Child #{i + 1}</p>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field
-                label="Full Name"
-                value={child.child_name ?? ""}
-                onChange={(v) => onArrayChange("emp_children", i, "child_name", v)}
-                className="sm:col-span-2"
-              />
-
-              <Field
-                label="Birth Date"
-                type="date"
-                value={child.child_birthdate ?? ""}
-                onChange={(v) => onArrayChange("emp_children", i, "child_birthdate", v)}
-              />
-
-              <FloatSelect
-                label="Status"
-                value={child.status ?? ""}
-                options={["ACTIVE", "INACTIVE"]}
-                onChange={(v) => onArrayChange("emp_children", i, "status", v)}
-              />
+              <Field label="Full Name" value={child.child_name ?? ""} onChange={(v) => onArrayChange("emp_children", i, "child_name", v)} className="sm:col-span-2" />
+              <Field label="Birth Date" type="date" value={child.child_birthdate ?? ""} onChange={(v) => onArrayChange("emp_children", i, "child_birthdate", v)} />
+              <FloatSelect label="Status" value={child.status ?? ""} options={["ACTIVE","INACTIVE"]} onChange={(v) => onArrayChange("emp_children", i, "status", v)} />
             </div>
           </div>
         ))}
 
         <div className="sm:col-span-2">
-          <button
-            className="add-btn"
-            onClick={() =>
-              onAdd("emp_children", {
-                ...BLANK_CHILD,
-                children_id: `new-${Date.now()}`,
-              })
-            }
-          >
+          <button className="add-btn" onClick={() => onAdd("emp_children", { ...BLANK_CHILD, children_id: `new-${Date.now()}` })}>
             <Plus size={14} /> Add Child
           </button>
         </div>
-
       </div>
     </AccordionSection>
   );
