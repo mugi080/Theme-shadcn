@@ -5,11 +5,12 @@ import { X, Loader2, CheckCircle2 } from "lucide-react";
 import { apiFetch } from "@/lib/api/personal-info/auth";
 
 /* Sections */
-import PersonalInfoSection from "./sections/personalinfo";
+import PersonalInfoSection from "./sections/personal-info";
+import FamilyBackgroundSection from "./sections/family-background-section";
 import EducationSection from "./sections/education-section";
-import WorkExperienceSection from "./sections/workexperiencesection";
-import EligibilitySection from "./sections/eligibilitysection";
-import VoluntaryWorkSection from "./sections/voluntarysection";
+import WorkExperienceSection from "./sections/work-experience-section";
+import EligibilitySection from "./sections/eligibility-section";
+import VoluntaryWorkSection from "./sections/voluntary-section";
 import LearningDevelopmentSection from "./sections/learning&developmentsection";
 
 /* UI Components */
@@ -85,16 +86,16 @@ export default function EditProfileModal({
       change_description: "Profile Update",
     };
 
-    const keys = [ 
+    const keys = [
       "firstname", "middlename", "surname", "suffix",
       "birthdate", "birthplace",
-      "sex", "civil_status", "blood_type","height", "weight",
-      "mobile_no", "email_address", "telephone_no", 
-      "citizenship", "citizenship_category",  "citizenship_country",
-      "ra_house_block_lotno", "ra_street","ra_subdivision_village",  "ra_barangay","ra_city_municipality", "ra_province", "ra_zipcode",
-      "pa_house_block_lotno", "pa_street","pa_subdivision_village",  "pa_barangay","pa_city_municipality", "pa_province", "pa_zipcode",
+      "sex", "civil_status", "blood_type", "height", "weight",
+      "mobile_no", "email_address", "telephone_no",
+      "citizenship", "citizenship_category", "citizenship_country",
+      "ra_house_block_lotno", "ra_street", "ra_subdivision_village", "ra_barangay", "ra_city_municipality", "ra_province", "ra_zipcode",
+      "pa_house_block_lotno", "pa_street", "pa_subdivision_village", "pa_barangay", "pa_city_municipality", "pa_province", "pa_zipcode",
 
-      "emp_education", "emp_work_exp", "emp_eligibility", "emp_voluntary_work", "emp_ldinterventions",
+      "family","emp_children","emp_education", "emp_work_exp", "emp_eligibility", "emp_voluntary_work", "emp_ldinterventions",
     ];
 
     keys.forEach((key) => {
@@ -188,7 +189,7 @@ export default function EditProfileModal({
         onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       >
         <div className="modal-card bg-card w-full sm:max-w-2xl lg:max-w-3xl flex flex-col rounded-t-[20px] sm:rounded-[20px] max-h-[92dvh] border border-border shadow-xl">
-          
+
           {/* ── Header ── */}
           <div className="flex items-center justify-between px-5 pt-5 pb-4 flex-shrink-0 border-b border-border relative">
             <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-muted sm:hidden" />
@@ -213,6 +214,15 @@ export default function EditProfileModal({
               onToggle={() => toggleSection("personal")}
               onFieldChange={handleFieldChange}
             />
+            <FamilyBackgroundSection
+              formData={formData.family ?? {}}
+              records={formData.family?.emp_children ?? []}
+              isOpen={!!openSections.family}
+              onToggle={() => toggleSection("family")}
+              onFieldChange={handleFieldChange}
+              {...arrayProps}
+            />
+
             <EducationSection records={formData.emp_education ?? []} isOpen={!!openSections.education} onToggle={() => toggleSection("education")} {...arrayProps} />
             <WorkExperienceSection records={formData.emp_work_exp ?? []} isOpen={!!openSections.work} onToggle={() => toggleSection("work")} {...arrayProps} />
             <EligibilitySection records={formData.emp_eligibility ?? []} isOpen={!!openSections.eligibility} onToggle={() => toggleSection("eligibility")} {...arrayProps} />
