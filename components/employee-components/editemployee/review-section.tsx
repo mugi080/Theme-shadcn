@@ -8,9 +8,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge" // Optional: If you have badge component
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface Props {
   open: boolean
@@ -32,68 +32,104 @@ export default function ReviewChanges({
     if (!oldData || !newData) return null
 
     const keys = Object.keys(newData)
+    const changes = keys.filter((key) => {
+      const oldValue = oldData?.[key]
+      const newValue = newData?.[key]
+      return JSON.stringify(oldValue) !== JSON.stringify(newValue)
+    })
 
-    return keys.map((key) => {
+    if (changes.length === 0) {
+      return (
+        <div className="flex items-center justify-center h-40 text-muted-foreground">
+          No changes detected.
+        </div>
+      )
+    }
+
+    return changes.map((key) => {
       const oldValue = oldData?.[key]
       const newValue = newData?.[key]
 
-      const isChanged =
-        JSON.stringify(oldValue) !== JSON.stringify(newValue)
-
-      if (!isChanged) return null
-
       return (
-        <Card key={key} className="p-4 space-y-2">
-          <div className="font-semibold text-sm">
-            {key}
+        <div key={key} className="group rounded-lg border border-border bg-card overflow-hidden">
+          {/* Field Header */}
+          <div className="flex items-center justify-between px-4 py-3 bg-muted/30 border-b border-border">
+            <span className="font-semibold text-sm text-foreground capitalize">
+              {key.replace(/([A-Z])/g, " $1").trim()}
+            </span>
+            <Badge variant="outline" className="text-xs">Modified</Badge>
           </div>
 
-          <div className="text-xs space-y-1">
-            <div>
-              <span className="text-red-600 font-medium">
-                Old:
-              </span>
-              <pre className="whitespace-pre-wrap text-muted-foreground">
-                {JSON.stringify(oldValue, null, 2)}
-              </pre>
+          {/* Comparison Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
+            
+            {/* Old Value Column */}
+            <div className="p-4 bg-destructive/5 space-y-2">
+              <div className="text-xs font-medium text-destructive uppercase tracking-wider">
+                Previous Value
+              </div>
+              <div className="relative">
+                <pre className="text-xs text-muted-foreground whitespace-pre-wrap break-all font-mono bg-background/50 p-3 rounded-md border border-destructive/10 max-h-40 overflow-y-auto">
+                  {JSON.stringify(oldValue, null, 2)}
+                </pre>
+              </div>
             </div>
 
-            <div>
-              <span className="text-green-600 font-medium">
-                New:
-              </span>
-              <pre className="whitespace-pre-wrap">
-                {JSON.stringify(newValue, null, 2)}
-              </pre>
+            {/* New Value Column */}
+            <div className="p-4 bg-primary/5 space-y-2">
+              <div className="text-xs font-medium text-primary uppercase tracking-wider">
+                New Value
+              </div>
+              <div className="relative">
+                <pre className="text-xs text-foreground whitespace-pre-wrap break-all font-mono bg-background/50 p-3 rounded-md border border-primary/10 max-h-40 overflow-y-auto">
+                  {JSON.stringify(newValue, null, 2)}
+                </pre>
+              </div>
             </div>
+
           </div>
-        </Card>
+        </div>
       )
     })
   }
 
   return (
     <Dialog open={open} onOpenChange={onCancel}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>Review Changes</DialogTitle>
+      {/* 
+         CRITICAL FIX: 
+         1. 'flex flex-col' ensures footer stays at bottom.
+         2. 'h-[90vh]' limits dialog height to viewport.
+         3. 'overflow-hidden' prevents double scrollbars.
+      */}
+      <DialogContent className="flex flex-col h-[90vh] max-w-4xl p-0 gap-0 bg-card text-card-foreground border-border">
+        
+        {/* Header - Fixed */}
+        <DialogHeader className="px-6 py-4 border-b border-border shrink-0">
+          <DialogTitle className="text-lg font-semibold">Review Changes</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Please verify the following modifications before submitting.
+          </p>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[60vh] pr-4">
-          <div className="space-y-4">
-            {renderChanges()}
-          </div>
-        </ScrollArea>
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-hidden p-6">
+          <ScrollArea className="h-full w-full pr-4">
+            <div className="space-y-4">
+              {renderChanges()}
+            </div>
+          </ScrollArea>
+        </div>
 
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onCancel}>
+        {/* Footer - Fixed */}
+        <DialogFooter className="px-6 py-4 border-t border-border bg-muted/20 shrink-0">
+          <Button variant="outline" onClick={onCancel} className="border-border">
             Cancel
           </Button>
-
           <Button onClick={onConfirm}>
             Confirm & Submit
           </Button>
         </DialogFooter>
+
       </DialogContent>
     </Dialog>
   )

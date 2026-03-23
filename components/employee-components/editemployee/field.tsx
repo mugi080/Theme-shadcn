@@ -20,12 +20,10 @@ export default function Field({
 }: FieldProps) {
   const [focused, setFocused] = useState(false);
 
-  // Date inputs always show mm/dd/yyyy so label must always float
-  // For other types, float when focused or has a value
   const isFloated = type === "date" || focused || (value !== "" && value !== null && value !== undefined);
 
   return (
-    <div className={`relative ${className}`} style={{ paddingTop: 0, marginBottom: 4 }}>
+    <div className={`relative pt-0 mb-1 ${className}`}>
       {/* The input */}
       <input
         type={type}
@@ -34,43 +32,33 @@ export default function Field({
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         placeholder=""
-        style={{
-          width: "100%",
-          background: "#f8fafc",
-          border: `1.5px solid ${focused ? "#3b82f6" : "#e2e8f0"}`,
-          borderRadius: 10,
-          padding: isFloated ? "18px 12px 6px 12px" : "12px 12px",
-          fontSize: 14,
-          color: "#1e293b",
-          outline: "none",
-          transition: "border-color 0.15s, box-shadow 0.15s, background 0.15s, padding 0.15s",
-          boxShadow: focused ? "0 0 0 3px rgba(59,130,246,0.12)" : "none",
-          fontFamily: "inherit",
-        }}
+        className={`
+          w-full bg-background text-foreground text-sm outline-none font-inherit
+          border border-input rounded-lg
+          transition-all duration-150
+          placeholder:text-muted-foreground/70
+          ${isFloated 
+            ? 'pt-[18px] pb-[6px] px-3' 
+            : 'py-3 px-3'
+          }
+          ${focused 
+            ? 'border-ring ring-2 ring-ring/20' 
+            : ''
+          }
+        `}
       />
 
       {/* Floating label */}
       <label
-        style={{
-          position: "absolute",
-          left: 12,
-          // Floated: sits on top border line; inside: vertically centered
-          top: isFloated ? 0 : "50%",
-          transform: isFloated ? "translateY(-50%)" : "translateY(-50%)",
-          fontSize: isFloated ? 10 : 14,
-          fontWeight: isFloated ? 700 : 400,
-          color: focused ? "#3b82f6" : isFloated ? "#64748b" : "#94a3b8",
-          letterSpacing: isFloated ? "0.06em" : "0",
-          textTransform: isFloated ? "uppercase" : "none",
-          pointerEvents: "none",
-          transition: "all 0.18s cubic-bezier(0.4,0,0.2,1)",
-          // Sit on the border line when floated
-          background: isFloated ? "#f8fafc" : "transparent",
-          paddingLeft: isFloated ? 4 : 0,
-          paddingRight: isFloated ? 4 : 0,
-          whiteSpace: "nowrap",
-          lineHeight: 1,
-        }}
+        className={`
+          absolute left-3 -translate-y-1/2 pointer-events-none whitespace-nowrap leading-none
+          transition-all duration-[180ms] ease-[cubic-bezier(0.4,0,0.2,1)]
+          ${isFloated
+            ? 'top-0 text-[10px] font-semibold tracking-wide uppercase bg-background px-1 text-muted-foreground'
+            : 'top-1/2 text-sm font-normal tracking-normal normal-case bg-transparent text-muted-foreground/80'
+          }
+          ${focused ? 'text-ring' : ''}
+        `}
       >
         {label}
       </label>

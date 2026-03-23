@@ -125,3 +125,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+@layer utilities {
+  @keyframes accordion-open {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-accordion-open {
+    animation: accordion-open 0.22s ease both;
+  }
+}
