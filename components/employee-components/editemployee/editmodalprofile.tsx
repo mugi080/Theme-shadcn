@@ -6,12 +6,14 @@ import { useState, useRef, useEffect } from "react";
 import { X, Loader2, CheckCircle2 } from "lucide-react";
 import { apiFetch } from "@/lib/api/personal-info/auth";
 
-import PersonalInfoSection         from "./sections/personalinfo";
-import EducationSection            from "./sections/educationsection";
-import WorkExperienceSection       from "./sections/workexperiencesection";
-import EligibilitySection          from "./sections/eligibilitysection";
-import VoluntaryWorkSection        from "./sections/voluntarysection";
-import LearningDevelopmentSection  from "./sections/learning&developmentsection";
+import PersonalInfoSection        from "./sections/personalinfo";
+import FamilyBackgroundSection    from "./sections/familybgsection";
+import EducationSection           from "./sections/educationsection";
+import WorkExperienceSection      from "./sections/workexperiencesection";
+import EligibilitySection         from "./sections/eligibilitysection";
+import VoluntaryWorkSection       from "./sections/voluntarysection";
+import LearningDevelopmentSection from "./sections/learning&developmentsection";
+import OtherInfoSection           from "./sections/otherinfosection";
 
 interface EditProfileModalProps {
   initialData: any;
@@ -29,10 +31,11 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Edi
   const toggleSection = (key: string) =>
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  // ── Field change handlers ──────────────────────────────
+  // ── Generic field change ───────────────────────────────
   const handleFieldChange = (field: string, value: any) =>
     setFormData((f: any) => ({ ...f, [field]: value }));
 
+  // ── Array handlers (Education, Work, etc.) ─────────────
   const handleArrayChange = (section: string, index: number, field: string, value: any) =>
     setFormData((f: any) => {
       const arr = [...(f[section] ?? [])];
@@ -51,6 +54,39 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Edi
       ...f,
       [section]: (f[section] ?? []).filter((_: any, i: number) => i !== index),
     }));
+
+  // ── Family-specific field change ───────────────────────
+  // Handles both shapes:
+  //   Shape A: formData.emp_family_background = { spouse_firstname, ... }
+  //   Shape B: formData.spouse_firstname  (flat, same as personal info)
+  const handleFamilyChange = (field: string, value: any) => {
+    if (formData.emp_family_background && typeof formData.emp_family_background === "object") {
+      // Shape A — update inside the nested object
+      setFormData((f: any) => ({
+        ...f,
+        emp_family_background: { ...f.emp_family_background, [field]: value },
+      }));
+    } else {
+      // Shape B — update flat on formData
+      handleFieldChange(field, value);
+    }
+  };
+
+  // ── Resolve family object & children for FamilyBackgroundSection ──
+  // Pre-extract exactly like: records={formData.emp_education ?? []}
+  const familyObj: any =
+    formData.emp_family_background &&
+    typeof formData.emp_family_background === "object" &&
+    !Array.isArray(formData.emp_family_background)
+      ? formData.emp_family_background   // Shape A
+      : formData;                        // Shape B (flat)
+
+  const childrenArr: any[] =
+    Array.isArray(formData.emp_children)
+      ? formData.emp_children
+      : Array.isArray(formData.emp_family_background?.emp_children)
+      ? formData.emp_family_background.emp_children
+      : [];
 
   // ── Submit ─────────────────────────────────────────────
   const handleSubmit = async () => {
@@ -80,11 +116,11 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Edi
     return () => { document.body.style.overflow = ""; };
   }, []);
 
-  // Shared props passed to every array section
+  // Shared props for all array-based sections
   const arrayProps = {
     onArrayChange: handleArrayChange,
-    onAdd: addRecord,
-    onDelete: deleteRecord,
+    onAdd:         addRecord,
+    onDelete:      deleteRecord,
   };
 
   return (
@@ -216,10 +252,10 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Edi
           padding: 8px 14px;
           border-radius: 10px;
           border: 1.5px dashed #cbd5e1;
-          background: #0070f3;
+          background: transparent;
           font-size: 12px;
           font-weight: 600;
-          color: ##ffffff;
+          color: #64748b;
           cursor: pointer;
           transition: all 0.15s;
           width: 100%;
@@ -279,7 +315,9 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Edi
           >
             <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-gray-200 sm:hidden" />
             <div>
-              <p className="text-xs font-semibold tracking-widest text-blue-500 uppercase mono mb-0.5">Employee Record</p>
+              <p className="text-xs font-semibold tracking-widest text-blue-500 uppercase mono mb-0.5">
+                Employee Record
+              </p>
               <h2 className="text-lg font-bold text-slate-800 leading-tight">Edit Profile</h2>
             </div>
             <button
@@ -292,11 +330,25 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Edi
 
           {/* ── Body ── */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-thin px-4 sm:px-5 py-4 space-y-3">
+
+            {/* Personal Info — flat fields directly on formData */}
             <PersonalInfoSection
               formData={formData}
               isOpen={!!openSections.personal}
               onToggle={() => toggleSection("personal")}
               onFieldChange={handleFieldChange}
+            />
+
+            {/* Family Background — pre-extracted exactly like Education uses records={} */}
+            <FamilyBackgroundSection
+              family={familyObj}
+              children={childrenArr}
+              isOpen={!!openSections.family}
+              onToggle={() => toggleSection("family")}
+              onFamilyChange={handleFamilyChange}
+              onArrayChange={handleArrayChange}
+              onAdd={addRecord}
+              onDelete={deleteRecord}
             />
 
             <EducationSection
@@ -333,6 +385,16 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Edi
               onToggle={() => toggleSection("ld")}
               {...arrayProps}
             />
+
+            <OtherInfoSection
+              formData={formData}
+              isOpen={!!openSections.otherinfo}
+              onToggle={() => toggleSection("otherinfo")}
+              onArrayChange={handleArrayChange}
+              onAdd={addRecord}
+              onDelete={deleteRecord}
+            />
+
           </div>
 
           {/* ── Footer ── */}
@@ -340,7 +402,9 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Edi
             className="flex-shrink-0 flex items-center justify-between gap-3 px-5 py-4"
             style={{ borderTop: "1.5px solid #f1f5f9" }}
           >
-            <p className="text-xs text-slate-400 hidden sm:block">Changes will be submitted for review.</p>
+            <p className="text-xs text-slate-400 hidden sm:block">
+              Changes will be submitted for review.
+            </p>
             <div className="flex items-center gap-3 ml-auto">
               <button
                 onClick={onClose}

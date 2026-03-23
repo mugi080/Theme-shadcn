@@ -260,7 +260,6 @@ export default function PhAddressFields({ prefix, label, values, onChange }: PhA
         onChange={(v) => onChange(f("barangay"), v)}
         disabled={!values.city_municipality}
         placeholder={values.city_municipality ? "Select barangay…" : "Select city first"}
-        className="sm:col-span-2"
       />
 
       <FloatInput label="Zip Code" value={values.zipcode} onChange={(v) => onChange(f("zipcode"), v)} />
