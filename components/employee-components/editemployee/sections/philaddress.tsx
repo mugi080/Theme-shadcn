@@ -5,12 +5,29 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import rawData from "@/data/philippines.json";
 
+/* Shadcn UI Primitives */
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Field,
+  FieldLabel,
+  FieldContent,
+  FieldError,
+  FieldSeparator,
+} from "@/components/ui/field";
+
 // ── Types ────────────────────────────────────────────────────────
-type BarangayList    = { barangay_list: string[] };
+type BarangayList = { barangay_list: string[] };
 type MunicipalityMap = Record<string, BarangayList>;
-type ProvinceEntry   = { municipality_list: MunicipalityMap };
-type ProvinceMap     = Record<string, ProvinceEntry>;
-type RegionEntry     = { region_name: string; province_list: ProvinceMap };
+type ProvinceEntry = { municipality_list: MunicipalityMap };
+type ProvinceMap = Record<string, ProvinceEntry>;
+type RegionEntry = { region_name: string; province_list: ProvinceMap };
 type PhilippinesData = Record<string, RegionEntry>;
 
 const phData = rawData as unknown as PhilippinesData;
@@ -40,140 +57,159 @@ function getBarangays(province: string, city: string): string[] {
   return [];
 }
 
-// ── Floating label styles helper ─────────────────────────────────
-function floatStyles(isFloated: boolean, focused: boolean) {
-  return {
-    wrapper: { position: "relative" as const },
-    label: {
-      position: "absolute" as const,
-      left: 12,
-      top: isFloated ? 0 : "50%",
-      transform: "translateY(-50%)",
-      fontSize: isFloated ? 10 : 14,
-      fontWeight: isFloated ? 700 : 400,
-      color: focused ? "#3b82f6" : isFloated ? "#64748b" : "#94a3b8",
-      letterSpacing: isFloated ? "0.06em" : "0",
-      textTransform: isFloated ? "uppercase" as const : "none" as const,
-      pointerEvents: "none" as const,
-      transition: "all 0.18s cubic-bezier(0.4,0,0.2,1)",
-      background: isFloated ? "#f8fafc" : "transparent",
-      paddingLeft: isFloated ? 4 : 0,
-      paddingRight: isFloated ? 4 : 0,
-      whiteSpace: "nowrap" as const,
-      lineHeight: 1,
-      zIndex: 1,
-    },
-  };
-}
-
-// ── FloatInput ───────────────────────────────────────────────────
+// ── Theme-Aware Floating Input ───────────────────────────────────
 function FloatInput({
-  label, value, onChange, className = "",
+  id,
+  label,
+  value,
+  onChange,
+  className = "",
+  error,
 }: {
-  label: string; value: string; onChange: (v: string) => void; className?: string;
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  className?: string;
+  error?: string;
 }) {
-  const [focused, setFocused] = useState(false);
-  const isFloated = focused || !!value;
-  const { wrapper, label: labelStyle } = floatStyles(isFloated, focused);
+  const [isFocused, setIsFocused] = useState(false);
+  const isFloated = !!value || isFocused;
 
   return (
-    <div className={className} style={{ ...wrapper, marginBottom: 4 }}>
-      <input
-        type="text"
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        placeholder=""
-        style={{
-          width: "100%",
-          background: "#f8fafc",
-          border: `1.5px solid ${focused ? "#3b82f6" : "#e2e8f0"}`,
-          borderRadius: 10,
-          padding: isFloated ? "18px 12px 6px 12px" : "12px 12px",
-          fontSize: 14,
-          color: "#1e293b",
-          outline: "none",
-          transition: "all 0.15s",
-          boxShadow: focused ? "0 0 0 3px rgba(59,130,246,0.12)" : "none",
-          fontFamily: "inherit",
-        }}
-      />
-      <label style={labelStyle}>{label}</label>
-    </div>
+    <Field className={cn("relative", className)} data-slot="field-group">
+      <div className="relative">
+        <Input
+          id={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          placeholder=" "
+          aria-invalid={!!error}
+          aria-describedby={error ? `${id}-error` : undefined}
+          className={cn(
+            "peer bg-background placeholder:text-transparent",
+            isFloated ? "pt-5 pb-1.5" : "pt-3 pb-3",
+            error && "aria-invalid:border-destructive"
+          )}
+        />
+        <FieldLabel
+          htmlFor={id}
+          className={cn(
+            "absolute left-3 pointer-events-none transition-all duration-200 ease-in-out",
+            "text-muted-foreground peer-focus:text-ring",
+            isFloated
+              ? "top-0 -translate-y-1/2 text-[10px] font-semibold uppercase tracking-wide bg-background px-1"
+              : "top-1/2 -translate-y-1/2 text-sm font-normal peer-placeholder-shown:text-muted-foreground/80"
+          )}
+        >
+          {label}
+        </FieldLabel>
+      </div>
+      {error && <FieldError id={`${id}-error`}>{error}</FieldError>}
+    </Field>
   );
 }
 
-// ── FloatSelect ──────────────────────────────────────────────────
+// ── Theme-Aware Floating Select ──────────────────────────────────
 function FloatSelect({
-  label, value, options, onChange, disabled = false,
-  placeholder = "Select…", className = "",
+  id,
+  label,
+  value,
+  options,
+  onChange,
+  disabled = false,
+  placeholder = "Select…",
+  className = "",
+  error,
 }: {
-  label: string; value: string; options: string[];
-  onChange: (v: string) => void; disabled?: boolean;
-  placeholder?: string; className?: string;
+  id: string;
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+  disabled?: boolean;
+  placeholder?: string;
+  className?: string;
+  error?: string;
 }) {
-  const [focused, setFocused] = useState(false);
-  const isFloated = focused || !!value;
-  const { wrapper, label: labelStyle } = floatStyles(isFloated, focused);
+  const [isFocused, setIsFocused] = useState(false);
+  const isFloated = !!value || isFocused;
 
   return (
-    <div className={className} style={{ ...wrapper, marginBottom: 4 }}>
-      <select
-        value={value || ""}
-        disabled={disabled}
-        onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        style={{
-          width: "100%",
-          appearance: "none" as const,
-          background: "#f8fafc",
-          border: `1.5px solid ${focused ? "#3b82f6" : "#e2e8f0"}`,
-          borderRadius: 10,
-          padding: isFloated ? "18px 36px 6px 12px" : "12px 36px 12px 12px",
-          fontSize: 14,
-          color: value ? "#1e293b" : "transparent",  // hide placeholder text (label covers it)
-          outline: "none",
-          transition: "all 0.15s",
-          boxShadow: focused ? "0 0 0 3px rgba(59,130,246,0.12)" : "none",
-          fontFamily: "inherit",
-          cursor: disabled ? "not-allowed" : "pointer",
-          opacity: disabled ? 0.45 : 1,
-        }}
-      >
-        <option value="" disabled>{placeholder}</option>
-        {options.map((o) => <option key={o} value={o}>{o}</option>)}
-      </select>
+    <Field className={cn("relative", className)} data-slot="field-group">
+      <div className="relative">
+        <Select value={value} onValueChange={onChange} disabled={disabled}>
+          <SelectTrigger
+            id={id}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            aria-invalid={!!error}
+            aria-describedby={error ? `${id}-error` : undefined}
+            className={cn(
+              "peer bg-background",
+              isFloated ? "pt-5 pb-1.5 pr-8" : "pt-3 pb-3 pr-8",
+              disabled && "opacity-60 cursor-not-allowed",
+              error && "aria-invalid:border-destructive"
+            )}
+          >
+            <SelectValue placeholder={placeholder} className="text-foreground" />
+          </SelectTrigger>
+          <SelectContent
+            position="popper"
+            className="bg-popover text-popover-foreground border-border max-h-60 overflow-y-auto"
+            align="start"
+            sideOffset={4}
+          >
+            {options.map((opt) => (
+              <SelectItem
+                key={opt}
+                value={opt}
+                className="text-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer truncate"
+              >
+                {opt}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      {/* Floating label */}
-      <label style={labelStyle}>{label}</label>
+        <FieldLabel
+          htmlFor={id}
+          className={cn(
+            "absolute left-3 pointer-events-none transition-all duration-200 ease-in-out z-10",
+            "text-muted-foreground peer-focus:text-ring",
+            isFloated
+              ? "top-0 -translate-y-1/2 text-[10px] font-semibold uppercase tracking-wide bg-background px-1"
+              : "top-1/2 -translate-y-1/2 text-sm font-normal peer-placeholder-shown:text-muted-foreground/80"
+          )}
+        >
+          {label}
+        </FieldLabel>
 
-      {/* Chevron */}
-      <ChevronDown
-        size={14}
-        style={{
-          position: "absolute",
-          right: 10, top: "50%",
-          transform: "translateY(-50%)",
-          pointerEvents: "none",
-          color: "#94a3b8",
-        }}
-      />
-    </div>
+        {/* Chevron for visual cue */}
+        <ChevronDown
+          className={cn(
+            "absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none",
+            "text-muted-foreground transition-colors",
+            disabled && "opacity-40"
+          )}
+        />
+      </div>
+      {error && <FieldError id={`${id}-error`}>{error}</FieldError>}
+    </Field>
   );
 }
 
-// ── Section divider ──────────────────────────────────────────────
+// ── Theme-Aware Section Divider ──────────────────────────────────
 function Divider({ label }: { label: string }) {
   if (!label) return null;
   return (
-    <div className="sm:col-span-2 flex items-center gap-3 pt-1">
-      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94a3b8", whiteSpace: "nowrap" }}>
+    <FieldSeparator className="sm:col-span-2">
+      <span className="text-[10px] font-bold tracking-[0.1em] uppercase text-muted-foreground">
         {label}
       </span>
-      <div style={{ flex: 1, height: 1, background: "#e9eef5" }} />
-    </div>
+    </FieldSeparator>
   );
 }
 
@@ -195,8 +231,13 @@ interface PhAddressFieldsProps {
   onChange: (field: string, value: string) => void;
 }
 
-// ── Main ─────────────────────────────────────────────────────────
-export default function PhAddressFields({ prefix, label, values, onChange }: PhAddressFieldsProps) {
+// ── Main Component ───────────────────────────────────────────────
+export default function PhAddressFields({
+  prefix,
+  label,
+  values,
+  onChange,
+}: PhAddressFieldsProps) {
   const f = (field: string) => `${prefix}_${field}`;
 
   const initialized = useRef(false);
@@ -212,19 +253,29 @@ export default function PhAddressFields({ prefix, label, values, onChange }: PhA
     if (rawProv === "") {
       onChange(f("province"), DEFAULT_PROVINCE);
     } else {
-      if (normProv !== rawProv) onChange(f("province"),         normProv);
+      if (normProv !== rawProv) onChange(f("province"), normProv);
       if (normCity !== rawCity) onChange(f("city_municipality"), normCity);
-      if (normBrgy !== rawBrgy) onChange(f("barangay"),          normBrgy);
+      if (normBrgy !== rawBrgy) onChange(f("barangay"), normBrgy);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const cities    = useMemo(() => getCities(values.province),                              [values.province]);
-  const barangays = useMemo(() => getBarangays(values.province, values.city_municipality), [values.province, values.city_municipality]);
+  const cities = useMemo(
+    () => getCities(values.province),
+    [values.province]
+  );
+  const barangays = useMemo(
+    () => getBarangays(values.province, values.city_municipality),
+    [values.province, values.city_municipality]
+  );
 
   const handleProvinceChange = (v: string) => {
     onChange(f("province"), v);
-    if (v !== values.province) { onChange(f("city_municipality"), ""); onChange(f("barangay"), ""); }
+    if (v !== values.province) {
+      onChange(f("city_municipality"), "");
+      onChange(f("barangay"), "");
+    }
   };
+
   const handleCityChange = (v: string) => {
     onChange(f("city_municipality"), v);
     if (v !== values.city_municipality) onChange(f("barangay"), "");
@@ -234,11 +285,28 @@ export default function PhAddressFields({ prefix, label, values, onChange }: PhA
     <>
       <Divider label={label} />
 
-      <FloatInput label="House / Block / Lot No." value={values.house_block_lotno} onChange={(v) => onChange(f("house_block_lotno"), v)} />
-      <FloatInput label="Street"                  value={values.street}            onChange={(v) => onChange(f("street"), v)} />
-      <FloatInput label="Subdivision / Village"   value={values.subdivision_village} onChange={(v) => onChange(f("subdivision_village"), v)} className="sm:col-span-2" />
+      <FloatInput
+        id={`${prefix}_house_block_lotno`}
+        label="House / Block / Lot No."
+        value={values.house_block_lotno}
+        onChange={(v) => onChange(f("house_block_lotno"), v)}
+      />
+      <FloatInput
+        id={`${prefix}_street`}
+        label="Street"
+        value={values.street}
+        onChange={(v) => onChange(f("street"), v)}
+      />
+      <FloatInput
+        id={`${prefix}_subdivision_village`}
+        label="Subdivision / Village"
+        value={values.subdivision_village}
+        onChange={(v) => onChange(f("subdivision_village"), v)}
+        className="sm:col-span-2"
+      />
 
       <FloatSelect
+        id={`${prefix}_province`}
         label="Province"
         value={values.province}
         options={ALL_PROVINCES}
@@ -246,6 +314,7 @@ export default function PhAddressFields({ prefix, label, values, onChange }: PhA
         placeholder="Select province…"
       />
       <FloatSelect
+        id={`${prefix}_city_municipality`}
         label="City / Municipality"
         value={values.city_municipality}
         options={cities}
@@ -254,6 +323,7 @@ export default function PhAddressFields({ prefix, label, values, onChange }: PhA
         placeholder={values.province ? "Select city…" : "Select province first"}
       />
       <FloatSelect
+        id={`${prefix}_barangay`}
         label="Barangay"
         value={values.barangay}
         options={barangays}
@@ -262,7 +332,17 @@ export default function PhAddressFields({ prefix, label, values, onChange }: PhA
         placeholder={values.city_municipality ? "Select barangay…" : "Select city first"}
       />
 
-      <FloatInput label="Zip Code" value={values.zipcode} onChange={(v) => onChange(f("zipcode"), v)} />
+      <FloatInput
+        id={`${prefix}_zipcode`}
+        label="Zip Code"
+        value={values.zipcode}
+        onChange={(v) => onChange(f("zipcode"), v)}
+      />
     </>
   );
+}
+
+// ── Utility ──────────────────────────────────────────────────────
+function cn(...classes: (string | undefined | null | false)[]) {
+  return classes.filter(Boolean).join(" ");
 }

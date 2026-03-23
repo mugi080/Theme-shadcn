@@ -127,4 +127,22 @@
 }
 
 
+<<<<<<< HEAD
  
+=======
+@layer utilities {
+  @keyframes accordion-open {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-accordion-open {
+    animation: accordion-open 0.22s ease both;
+  }
+}
+>>>>>>> 93b366b634966e5f72efe350645a1b68961140fd

@@ -2,9 +2,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { User, ChevronDown, Copy } from "lucide-react";
-import AccordionSection from "../accordionSection";
-import Field from "../field";
+import { User, Copy, Calendar } from "lucide-react";
+import { format } from "date-fns";
+
+/* Shadcn UI Primitives */
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+
 import PhAddressFields from "./philaddress";
 
 interface PersonalInfoSectionProps {
@@ -14,9 +39,9 @@ interface PersonalInfoSectionProps {
   onFieldChange: (field: string, value: any) => void;
 }
 
-const SEX_OPTIONS      = ["Male", "Female"];
-const CIVIL_OPTIONS    = ["Single", "Married", "Widowed", "Separated", "Divorced"];
-const BLOOD_OPTIONS    = ["A+", "A−", "B+", "B−", "AB+", "AB−", "O+", "O−"];
+const SEX_OPTIONS = ["Male", "Female"];
+const CIVIL_OPTIONS = ["Single", "Married", "Widowed", "Separated", "Divorced"];
+const BLOOD_OPTIONS = ["A+", "A−", "B+", "B−", "AB+", "AB−", "O+", "O−"];
 const CITIZENSHIP_CATS = ["By Birth", "By Naturalization", "Dual Citizenship"];
 
 const RA_FIELDS = [
@@ -28,129 +53,279 @@ function isSameAddress(fd: any) {
   return RA_FIELDS.every((f) => (fd[`ra_${f}`] ?? "") === (fd[`pa_${f}`] ?? ""));
 }
 
-// ── Floating label Select ────────────────────────────────────────
-function SelectField({
-  label, value, options, onChange, className = "",
+// ── Floating Label Input (Theme-Aware, Dark Mode Fixed) ──────────────────
+function FloatingInput({
+  id,
+  label,
+  value,
+  onChange,
+  type = "text",
+  className = "",
+  error,
 }: {
-  label: string; value: any; options: string[];
-  onChange: (v: string) => void; className?: string;
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  className?: string;
+  error?: string;
 }) {
-  const [focused, setFocused] = useState(false);
-  const isFloated = focused || !!value;
+  const isFloated = type === "date" || !!value;
 
   return (
-    <div className={className} style={{ position: "relative", marginBottom: 4 }}>
-      <select
-        value={value || ""}
+    <div className={`relative ${className}`}>
+      <Input
+        id={id}
+        type={type}
+        value={value}
         onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        style={{
-          width: "100%",
-          appearance: "none",
-          background: "#f8fafc",
-          border: `1.5px solid ${focused ? "#3b82f6" : "#e2e8f0"}`,
-          borderRadius: 10,
-          padding: isFloated ? "18px 36px 6px 12px" : "12px 36px 12px 12px",
-          fontSize: 14,
-          color: value ? "#1e293b" : "transparent",
-          outline: "none",
-          transition: "all 0.15s",
-          boxShadow: focused ? "0 0 0 3px rgba(59,130,246,0.12)" : "none",
-          fontFamily: "inherit",
-          cursor: "pointer",
-        }}
+        placeholder=" "
+        aria-invalid={!!error}
+        aria-describedby={error ? `${id}-error` : undefined}
+        className={`
+          peer w-full bg-background text-foreground border-input
+          placeholder:text-transparent transition-all duration-200
+          focus:border-ring focus:ring-2 focus:ring-ring/20 focus:outline-none
+          ${isFloated ? "pt-5 pb-1.5" : "pt-3 pb-3"}
+          ${error ? "border-destructive focus:border-destructive focus:ring-destructive/20" : ""}
+        `}
+      />
+      <Label
+        htmlFor={id}
+        className={`
+          absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
+          peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-[10px] 
+          peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wide
+          ${isFloated 
+            ? "top-0 -translate-y-1/2 text-[10px] font-semibold uppercase tracking-wide bg-background px-1" 
+            : "top-1/2 -translate-y-1/2 text-sm font-normal"
+          }
+          ${error ? "text-destructive peer-focus:text-destructive" : "text-muted-foreground peer-focus:text-ring"}
+        `}
       >
-        <option value="" disabled>Select…</option>
-        {options.map((o) => <option key={o} value={o}>{o}</option>)}
-      </select>
-
-      {/* Floating label */}
-      <label style={{
-        position: "absolute",
-        left: 12,
-        top: isFloated ? 0 : "50%",
-        transform: "translateY(-50%)",
-        fontSize: isFloated ? 10 : 14,
-        fontWeight: isFloated ? 700 : 400,
-        color: focused ? "#3b82f6" : isFloated ? "#64748b" : "#94a3b8",
-        letterSpacing: isFloated ? "0.06em" : "0",
-        textTransform: isFloated ? "uppercase" : "none",
-        pointerEvents: "none",
-        transition: "all 0.18s cubic-bezier(0.4,0,0.2,1)",
-        background: isFloated ? "#f8fafc" : "transparent",
-        paddingLeft: isFloated ? 4 : 0,
-        paddingRight: isFloated ? 4 : 0,
-        whiteSpace: "nowrap",
-        lineHeight: 1,
-        zIndex: 1,
-      }}>
         {label}
-      </label>
-
-      <ChevronDown size={14} style={{
-        position: "absolute", right: 10, top: "50%",
-        transform: "translateY(-50%)", pointerEvents: "none", color: "#94a3b8",
-      }} />
+      </Label>
+      {error && (
+        <p id={`${id}-error`} className="mt-1 text-[11px] text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
 
-// ── Section divider ──────────────────────────────────────────────
+// ── Floating Label Select (Fixed Dropdown Overflow & Dark Mode) ──────────
+function FloatingSelect({
+  id,
+  label,
+  value,
+  onValueChange,
+  options,
+  className = "",
+  error,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onValueChange: (v: string) => void;
+  options: string[];
+  className?: string;
+  error?: string;
+}) {
+  const isFloated = !!value;
+
+  return (
+    <div className={`relative ${className}`}>
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger
+          id={id}
+          aria-invalid={!!error}
+          aria-describedby={error ? `${id}-error` : undefined}
+          className={`
+            peer w-full bg-background text-foreground border-input
+            transition-all duration-200
+            focus:border-ring focus:ring-2 focus:ring-ring/20 focus:outline-none
+            ${isFloated ? "pt-5 pb-1.5" : "pt-3 pb-3"}
+            ${error ? "border-destructive focus:border-destructive focus:ring-destructive/20" : ""}
+          `}
+        >
+          <SelectValue placeholder=" " className="text-foreground" />
+        </SelectTrigger>
+        {/* Fixed dropdown: proper dark mode, no text overflow */}
+        <SelectContent 
+          position="popper" 
+          className="bg-popover text-popover-foreground border-border max-h-60 overflow-y-auto"
+          align="start"
+          sideOffset={4}
+        >
+          {options.map((opt) => (
+            <SelectItem 
+              key={opt} 
+              value={opt} 
+              className="text-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer truncate"
+            >
+              {opt}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Label
+        htmlFor={id}
+        className={`
+          absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
+          peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-[10px] 
+          peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wide
+          ${isFloated 
+            ? "top-0 -translate-y-1/2 text-[10px] font-semibold uppercase tracking-wide bg-background px-1" 
+            : "top-1/2 -translate-y-1/2 text-sm font-normal"
+          }
+          ${error ? "text-destructive peer-focus:text-destructive" : "text-muted-foreground peer-focus:text-ring"}
+        `}
+      >
+        {label}
+      </Label>
+      {error && (
+        <p id={`${id}-error`} className="mt-1 text-[11px] text-destructive">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Date Picker with Popover + Calendar (shadcn) ─────────────────────────
+function FloatingDatePicker({
+  id,
+  label,
+  value,
+  onChange,
+  className = "",
+  error,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  className?: string;
+  error?: string;
+}) {
+  const date = value ? new Date(value) : undefined;
+  const isFloated = !!value;
+
+  return (
+    <div className={`relative ${className}`}>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            id={id}
+            role="combobox"
+            aria-invalid={!!error}
+            aria-describedby={error ? `${id}-error` : undefined}
+            className={`
+              peer w-full justify-start text-left font-normal bg-background border-input
+              hover:bg-muted/50 hover:border-ring transition-all duration-200
+              focus:border-ring focus:ring-2 focus:ring-ring/20 focus:outline-none
+              ${isFloated ? "pt-5 pb-1.5" : "pt-3 pb-3"}
+              ${!date ? "text-muted-foreground" : "text-foreground"}
+              ${error ? "border-destructive focus:border-destructive focus:ring-destructive/20" : ""}
+            `}
+          >
+            <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
+            {date ? format(date, "MMM d, yyyy") : <span>Pick a date</span>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0 bg-popover border-border" align="start">
+          <CalendarComponent
+            mode="single"
+            selected={date}
+            onSelect={(d) => onChange(d?.toISOString().split("T")[0] || "")}
+            initialFocus
+            className="bg-popover text-popover-foreground"
+          />
+        </PopoverContent>
+      </Popover>
+
+      <Label
+        htmlFor={id}
+        className={`
+          absolute left-3 pointer-events-none transition-all duration-200 ease-in-out
+          peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-[10px] 
+          peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wide
+          ${isFloated 
+            ? "top-0 -translate-y-1/2 text-[10px] font-semibold uppercase tracking-wide bg-background px-1" 
+            : "top-1/2 -translate-y-1/2 text-sm font-normal"
+          }
+          ${error ? "text-destructive peer-focus:text-destructive" : "text-muted-foreground peer-focus:text-ring"}
+        `}
+      >
+        {label}
+      </Label>
+      {error && (
+        <p id={`${id}-error`} className="mt-1 text-[11px] text-destructive">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Section Divider (Theme-Aware) ────────────────────────────────────────
 function SectionDivider({ label }: { label: string }) {
   return (
     <div className="sm:col-span-2 flex items-center gap-3 pt-1">
-      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94a3b8", whiteSpace: "nowrap" }}>
+      <span className="text-[10px] font-bold tracking-[0.1em] uppercase text-muted-foreground whitespace-nowrap">
         {label}
       </span>
-      <div style={{ flex: 1, height: 1, background: "#e9eef5" }} />
+      <div className="flex-1 h-[1px] bg-border" />
     </div>
   );
 }
 
-// ── Toggle button ────────────────────────────────────────────────
+// ── Toggle Button (Theme-Aware, Dark Mode Fixed) ─────────────────────────
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      style={{
-        display: "flex", alignItems: "center", gap: 8,
-        background: checked ? "#eff6ff" : "#f8fafc",
-        border: `1.5px solid ${checked ? "#93c5fd" : "#e2e8f0"}`,
-        borderRadius: 10, padding: "7px 12px",
-        cursor: "pointer", transition: "all 0.2s",
-        userSelect: "none", width: "100%",
-      }}
+      className={`
+        w-full flex items-center gap-2 px-3 py-1.5 rounded-[10px]
+        border-[1.5px] transition-all duration-200 cursor-pointer select-none
+        ${checked
+          ? "bg-primary/10 border-primary/50 hover:bg-primary/15"
+          : "bg-background border-input hover:bg-muted/30"
+        }
+        focus:outline-none focus:ring-2 focus:ring-ring/20
+      `}
     >
-      <div style={{
-        width: 34, height: 18, borderRadius: 999,
-        background: checked ? "#3b82f6" : "#cbd5e1",
-        position: "relative", flexShrink: 0, transition: "background 0.2s",
-      }}>
-        <div style={{
-          position: "absolute", top: 2,
-          left: checked ? 16 : 2,
-          width: 14, height: 14, borderRadius: "50%",
-          background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-          transition: "left 0.2s",
-        }} />
-      </div>
-      <Copy size={13} color={checked ? "#3b82f6" : "#94a3b8"} />
-      <span style={{
-        fontSize: 12, fontWeight: 600,
-        color: checked ? "#3b82f6" : "#64748b",
-        letterSpacing: "0.03em", transition: "color 0.2s",
-      }}>
+      <span className={`
+        relative w-[34px] h-[18px] rounded-full flex-shrink-0 transition-colors duration-200
+        ${checked ? "bg-primary" : "bg-muted"}
+      `}>
+        <span className={`
+          absolute top-[2px] w-[14px] h-[14px] rounded-full bg-background
+          shadow-[0_1px_3px_rgba(0,0,0,0.2)] transition-all duration-200
+          ${checked ? "left-[16px]" : "left-[2px]"}
+        `} />
+      </span>
+      <Copy className={`w-[13px] h-[13px] transition-colors duration-200 ${checked ? "text-primary" : "text-muted-foreground"}`} />
+      <span className={`
+        text-[12px] font-semibold tracking-[0.03em] transition-colors duration-200
+        ${checked ? "text-primary" : "text-muted-foreground"}
+      `}>
         Same as Residential Address
       </span>
     </button>
   );
 }
 
-// ── Main ─────────────────────────────────────────────────────────
+// ── Main Component ──────────────────────────────────────────────────────
 export default function PersonalInfoSection({
-  formData, isOpen, onToggle, onFieldChange,
+  formData,
+  isOpen,
+  onToggle,
+  onFieldChange,
 }: PersonalInfoSectionProps) {
   const [sameAsResidential, setSameAsResidential] = useState(() => isSameAddress(formData));
 
@@ -164,101 +339,141 @@ export default function PersonalInfoSection({
     RA_FIELDS.forEach((f) => onFieldChange(`pa_${f}`, formData[`ra_${f}`] ?? ""));
   }, [
     sameAsResidential,
-    formData.ra_house_block_lotno, formData.ra_street,
-    formData.ra_subdivision_village, formData.ra_barangay,
-    formData.ra_city_municipality, formData.ra_province, formData.ra_zipcode,
+    formData.ra_house_block_lotno,
+    formData.ra_street,
+    formData.ra_subdivision_village,
+    formData.ra_barangay,
+    formData.ra_city_municipality,
+    formData.ra_province,
+    formData.ra_zipcode,
   ]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <AccordionSection
-      sectionKey="personal" label="Personal Info"
-      Icon={User} gradient="from-blue-500 to-blue-600"
-      isOpen={isOpen} onToggle={onToggle}
+    <Accordion 
+      type="single" 
+      collapsible 
+      value={isOpen ? "personal" : ""} 
+      onValueChange={(v) => v === "personal" && onToggle()} 
+      className="w-full"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-        <SectionDivider label="Name" />
-        <Field label="First Name"     value={formData.firstname}  onChange={(v) => onFieldChange("firstname", v)} />
-        <Field label="Middle Name"    value={formData.middlename} onChange={(v) => onFieldChange("middlename", v)} />
-        <Field label="Last Name"      value={formData.surname}    onChange={(v) => onFieldChange("surname", v)} />
-        <Field label="Name Extension" value={formData.name_ext}   onChange={(v) => onFieldChange("name_ext", v)} />
-
-        <SectionDivider label="Personal Details" />
-        <Field       label="Birth Date"   value={formData.birthdate}    type="date" onChange={(v) => onFieldChange("birthdate", v)} />
-        <Field       label="Birth Place"  value={formData.birthplace}               onChange={(v) => onFieldChange("birthplace", v)} />
-        <SelectField label="Sex"          value={formData.sex}           options={SEX_OPTIONS}    onChange={(v) => onFieldChange("sex", v)} />
-        <SelectField label="Civil Status" value={formData.civil_status}  options={CIVIL_OPTIONS}  onChange={(v) => onFieldChange("civil_status", v)} />
-        <SelectField label="Blood Type"   value={formData.blood_type}    options={BLOOD_OPTIONS}  onChange={(v) => onFieldChange("blood_type", v)} />
-        <Field       label="Height (cm)"  value={formData.height}                   onChange={(v) => onFieldChange("height", v)} />
-        <Field       label="Weight (kg)"  value={formData.weight}                   onChange={(v) => onFieldChange("weight", v)} />
-
-        <SectionDivider label="Contact" />
-        <Field label="Mobile Number"  value={formData.mobile_no}     onChange={(v) => onFieldChange("mobile_no", v)} />
-        <Field label="Telephone No."  value={formData.telephone_no}  onChange={(v) => onFieldChange("telephone_no", v)} />
-        <Field label="Email Address"  value={formData.email_address} onChange={(v) => onFieldChange("email_address", v)} className="sm:col-span-2" />
-
-        <SectionDivider label="Citizenship" />
-        <Field       label="Citizenship"       value={formData.citizenship}          onChange={(v) => onFieldChange("citizenship", v)} />
-        <SelectField label="Category"          value={formData.citizenship_category} options={CITIZENSHIP_CATS} onChange={(v) => onFieldChange("citizenship_category", v)} />
-        <Field       label="Country (if Dual)" value={formData.citizenship_country}  onChange={(v) => onFieldChange("citizenship_country", v)} />
-
-        <PhAddressFields
-          prefix="ra" label="Residential Address"
-          values={{
-            house_block_lotno:   formData.ra_house_block_lotno   || "",
-            street:              formData.ra_street              || "",
-            subdivision_village: formData.ra_subdivision_village || "",
-            barangay:            formData.ra_barangay            || "",
-            city_municipality:   formData.ra_city_municipality   || "",
-            province:            formData.ra_province            || "",
-            zipcode:             formData.ra_zipcode             || "",
-          }}
-          onChange={onFieldChange}
-        />
-
-        <SectionDivider label="Permanent Address" />
-
-        {/* Toggle — full width, clearly visible */}
-        <div className="sm:col-span-2">
-          <Toggle checked={sameAsResidential} onChange={handleSameToggle} />
-        </div>
-
-        {sameAsResidential ? (
-          <div className="sm:col-span-2" style={{
-            background: "#f0f9ff", border: "1.5px dashed #93c5fd",
-            borderRadius: 10, padding: "10px 14px",
-            display: "flex", alignItems: "center", gap: 8,
-          }}>
-            <Copy size={13} color="#60a5fa" />
-            <span style={{ fontSize: 12, color: "#3b82f6", fontWeight: 500 }}>
-              Permanent address will be copied from residential address.
+      <AccordionItem 
+        value="personal" 
+        className="border border-border rounded-[14px] overflow-hidden bg-card data-[state=open]:shadow-[0_2px_12px_color-mix(in_oklch,var(--foreground)_6%,transparent)]"
+      >
+        {/* Custom Trigger with Gradient Icon */}
+        <AccordionTrigger className="hover:no-underline hover:bg-muted/40 px-4 py-3.5 rounded-t-[14px] data-[state=open]:rounded-b-none data-[state=open]:border-b data-[state=open]:border-border">
+          <div className="flex items-center gap-3 w-full text-left">
+            {/* Gradient Icon */}
+            <span className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-primary to-primary/90">
+              <User size={17} className="text-primary-foreground" />
             </span>
+            {/* Label */}
+            <span className="font-semibold text-sm text-foreground">Personal Info</span>
           </div>
-        ) : (
-          <PhAddressFields
-            prefix="pa" label=""
-            values={{
-              house_block_lotno:   formData.pa_house_block_lotno   || "",
-              street:              formData.pa_street              || "",
-              subdivision_village: formData.pa_subdivision_village || "",
-              barangay:            formData.pa_barangay            || "",
-              city_municipality:   formData.pa_city_municipality   || "",
-              province:            formData.pa_province            || "",
-              zipcode:             formData.pa_zipcode             || "",
-            }}
-            onChange={onFieldChange}
-          />
-        )}
+        </AccordionTrigger>
 
-        <SectionDivider label="Government IDs" />
-        <Field label="GSIS No."        value={formData.gsis_no}        onChange={(v) => onFieldChange("gsis_no", v)} />
-        <Field label="PAG-IBIG No."    value={formData.pagibig_no}     onChange={(v) => onFieldChange("pagibig_no", v)} />
-        <Field label="PhilHealth No."  value={formData.philhealth_no}  onChange={(v) => onFieldChange("philhealth_no", v)} />
-        <Field label="SSS No."         value={formData.sss_no}         onChange={(v) => onFieldChange("sss_no", v)} />
-        <Field label="TIN No."         value={formData.tin_no}         onChange={(v) => onFieldChange("tin_no", v)} />
-        <Field label="Agency Emp. No." value={formData.agency_emp_no}  onChange={(v) => onFieldChange("agency_emp_no", v)} />
+        <AccordionContent className="px-4 pb-4 pt-2 bg-background">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            
+            {/* ── Name Fields ── */}
+            <SectionDivider label="Name" />
+            <FloatingInput id="firstname" label="First Name" value={formData.firstname || ""} onChange={(v) => onFieldChange("firstname", v)} />
+            <FloatingInput id="middlename" label="Middle Name" value={formData.middlename || ""} onChange={(v) => onFieldChange("middlename", v)} />
+            <FloatingInput id="surname" label="Last Name" value={formData.surname || ""} onChange={(v) => onFieldChange("surname", v)} />
+            <FloatingInput id="name_ext" label="Name Extension" value={formData.name_ext || ""} onChange={(v) => onFieldChange("name_ext", v)} />
 
-      </div>
-    </AccordionSection>
+            {/* ── Personal Details (Reorganized Grid) ── */}
+            <SectionDivider label="Personal Details" />
+            
+            {/* Date & Place */}
+            <FloatingDatePicker id="birthdate" label="Birth Date" value={formData.birthdate || ""} onChange={(v) => onFieldChange("birthdate", v)} />
+            <FloatingInput id="birthplace" label="Birth Place" value={formData.birthplace || ""} onChange={(v) => onFieldChange("birthplace", v)} />
+            
+            {/* Sex | Civil Status | Blood Type — Single Row */}
+            <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <FloatingSelect id="sex" label="Sex" value={formData.sex || ""} onValueChange={(v) => onFieldChange("sex", v)} options={SEX_OPTIONS} />
+              <FloatingSelect id="civil_status" label="Civil Status" value={formData.civil_status || ""} onValueChange={(v) => onFieldChange("civil_status", v)} options={CIVIL_OPTIONS} />
+              <FloatingSelect id="blood_type" label="Blood Type" value={formData.blood_type || ""} onValueChange={(v) => onFieldChange("blood_type", v)} options={BLOOD_OPTIONS} />
+            </div>
+            
+            {/* Height | Weight — Single Row */}
+            <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <FloatingInput id="height" label="Height (cm)" value={formData.height || ""} onChange={(v) => onFieldChange("height", v)} />
+              <FloatingInput id="weight" label="Weight (kg)" value={formData.weight || ""} onChange={(v) => onFieldChange("weight", v)} />
+            </div>
+
+            {/* ── Contact ── */}
+            <SectionDivider label="Contact" />
+            <FloatingInput id="mobile_no" label="Mobile Number" value={formData.mobile_no || ""} onChange={(v) => onFieldChange("mobile_no", v)} />
+            <FloatingInput id="telephone_no" label="Telephone No." value={formData.telephone_no || ""} onChange={(v) => onFieldChange("telephone_no", v)} />
+            <FloatingInput id="email_address" label="Email Address" value={formData.email_address || ""} onChange={(v) => onFieldChange("email_address", v)} className="sm:col-span-2" type="email" />
+
+            {/* ── Citizenship (Fixed Dropdown Overflow) ── */}
+            <SectionDivider label="Citizenship" />
+            <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <FloatingInput id="citizenship" label="Citizenship" value={formData.citizenship || ""} onChange={(v) => onFieldChange("citizenship", v)} className="sm:col-span-2" />
+              <FloatingSelect id="citizenship_category" label="Category" value={formData.citizenship_category || ""} onValueChange={(v) => onFieldChange("citizenship_category", v)} options={CITIZENSHIP_CATS} />
+              <FloatingInput id="citizenship_country" label="Country (if Dual)" value={formData.citizenship_country || ""} onChange={(v) => onFieldChange("citizenship_country", v)} className="sm:col-span-2" />
+            </div>
+
+            {/* ── Residential Address (Theme-Aware via PhAddressFields) ── */}
+            <PhAddressFields
+              prefix="ra"
+              label="Residential Address"
+              values={{
+                house_block_lotno: formData.ra_house_block_lotno || "",
+                street: formData.ra_street || "",
+                subdivision_village: formData.ra_subdivision_village || "",
+                barangay: formData.ra_barangay || "",
+                city_municipality: formData.ra_city_municipality || "",
+                province: formData.ra_province || "",
+                zipcode: formData.ra_zipcode || "",
+              }}
+              onChange={onFieldChange}
+            />
+
+            {/* ── Permanent Address ── */}
+            <SectionDivider label="Permanent Address" />
+            <div className="sm:col-span-2">
+              <Toggle checked={sameAsResidential} onChange={handleSameToggle} />
+            </div>
+
+            {sameAsResidential ? (
+              <Card className="sm:col-span-2 flex items-center gap-2 px-3.5 py-2.5 border-primary/50 bg-primary/10">
+                <Copy className="w-[13px] h-[13px] text-primary" />
+                <span className="text-[12px] font-medium text-primary">
+                  Permanent address will be copied from residential address.
+                </span>
+              </Card>
+            ) : (
+              <PhAddressFields
+                prefix="pa"
+                label=""
+                values={{
+                  house_block_lotno: formData.pa_house_block_lotno || "",
+                  street: formData.pa_street || "",
+                  subdivision_village: formData.pa_subdivision_village || "",
+                  barangay: formData.pa_barangay || "",
+                  city_municipality: formData.pa_city_municipality || "",
+                  province: formData.pa_province || "",
+                  zipcode: formData.pa_zipcode || "",
+                }}
+                onChange={onFieldChange}
+              />
+            )}
+
+            {/* ── Government IDs ── */}
+            <SectionDivider label="Government IDs" />
+            <FloatingInput id="gsis_no" label="GSIS No." value={formData.gsis_no || ""} onChange={(v) => onFieldChange("gsis_no", v)} />
+            <FloatingInput id="pagibig_no" label="PAG-IBIG No." value={formData.pagibig_no || ""} onChange={(v) => onFieldChange("pagibig_no", v)} />
+            <FloatingInput id="philhealth_no" label="PhilHealth No." value={formData.philhealth_no || ""} onChange={(v) => onFieldChange("philhealth_no", v)} />
+            <FloatingInput id="sss_no" label="SSS No." value={formData.sss_no || ""} onChange={(v) => onFieldChange("sss_no", v)} />
+            <FloatingInput id="tin_no" label="TIN No." value={formData.tin_no || ""} onChange={(v) => onFieldChange("tin_no", v)} />
+            <FloatingInput id="agency_emp_no" label="Agency Emp. No." value={formData.agency_emp_no || ""} onChange={(v) => onFieldChange("agency_emp_no", v)} />
+            
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 }
