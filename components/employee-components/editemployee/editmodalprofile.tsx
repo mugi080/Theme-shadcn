@@ -5,53 +5,112 @@ import { X, Loader2, CheckCircle2 } from "lucide-react";
 import { apiFetch } from "@/lib/api/personal-info/auth";
 
 /* Sections */
-import PersonalInfoSection from "./sections/personalinfo";
+import PersonalInfoSection from "./sections/personal-info";
+import FamilyBackgroundSection from "./sections/family-background-section";
 import EducationSection from "./sections/education-section";
-import WorkExperienceSection from "./sections/workexperiencesection";
-import EligibilitySection from "./sections/eligibilitysection";
-import VoluntaryWorkSection from "./sections/voluntarysection";
+import WorkExperienceSection from "./sections/work-experience-section";
+import EligibilitySection from "./sections/eligibility-section";
+import VoluntaryWorkSection from "./sections/voluntary-section";
 import LearningDevelopmentSection from "./sections/learning&developmentsection";
 
+
 /* UI Components */
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-
 import ReviewChanges from "./review-section";
 
 interface Props {
-  initialData: any;
+  initialData: any; // = data.data from API (already unwrapped)
   onClose: () => void;
   onSubmit: () => void;
 }
 
-export default function EditProfileModal({
-  initialData,
-  onClose,
-  onSubmit,
-}: Props) {
+export default function EditProfileModal({ initialData, onClose, onSubmit }: Props) {
+
   // ── Core State ──────────────────────────────────────────
-  const [formData, setFormData] = useState(() => structuredClone(initialData));
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    personal: true,
+  const [formData, setFormData] = useState(() => {
+    const clone = structuredClone(initialData);
+
+    // ✅ family lives directly at clone.family (info = data.data)
+    if (!clone.family || typeof clone.family !== "object") {
+      clone.family = {};
+    }
+
+    // ✅ children live at clone.family.emp_children
+    if (!Array.isArray(clone.family.emp_children)) {
+      clone.family.emp_children = [];
+    }
+
+    return clone;
   });
 
-  /* Review State */
-  const [showReview, setShowReview] = useState(false);
-  const [reviewPayload, setReviewPayload] = useState<any>(null);
+  const [submitting, setSubmitting]     = useState(false);
+  const [submitted, setSubmitted]       = useState(false);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    personal: true,
+    family:   true,
+  });
 
+  const [showReview, setShowReview]       = useState(false);
+  const [reviewPayload, setReviewPayload] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // ── Toggle Accordion ───────────────────────────────────
   const toggleSection = (key: string) =>
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  // ── Field change handlers ──────────────────────────────
+  // ── Personal flat fields — directly on formData ────────
   const handleFieldChange = (field: string, value: any) =>
     setFormData((f: any) => ({ ...f, [field]: value }));
 
+  // ── Family flat fields — lives at formData.family ──────
+  const handleFamilyChange = (field: string, value: any) =>
+    setFormData((f: any) => ({
+      ...f,
+      family: {
+        ...f.family,
+        [field]: value,
+      },
+    }));
+
+  // ── Children — lives at formData.family.emp_children ───
+  const handleChildArrayChange = (
+    _section: string,
+    index: number,
+    field: string,
+    value: any
+  ) =>
+    setFormData((f: any) => {
+      const emp_children = [...(f.family?.emp_children ?? [])];
+      emp_children[index] = { ...emp_children[index], [field]: value };
+      return {
+        ...f,
+        family: { ...f.family, emp_children },
+      };
+    });
+
+  const addChild = (_section: string, blank: object) =>
+    setFormData((f: any) => ({
+      ...f,
+      family: {
+        ...f.family,
+        emp_children: [...(f.family?.emp_children ?? []), blank],
+      },
+    }));
+
+  const deleteChild = (_section: string, index: number) =>
+    setFormData((f: any) => ({
+      ...f,
+      family: {
+        ...f.family,
+        emp_children: (f.family?.emp_children ?? []).filter(
+          (_: any, i: number) => i !== index
+        ),
+      },
+    }));
+
+  // ── Generic array handlers (Education, Work, etc.) ─────
+  // ✅ These all live directly on formData (same level as firstname etc.)
   const handleArrayChange = (section: string, index: number, field: string, value: any) =>
     setFormData((f: any) => {
       const arr = [...(f[section] ?? [])];
@@ -72,29 +131,30 @@ export default function EditProfileModal({
     }));
 
   // ── Change Detection ───────────────────────────────────
-  const hasChanges = useMemo(() => {
-    return JSON.stringify(formData) !== JSON.stringify(initialData);
-  }, [formData, initialData]);
+  const hasChanges = useMemo(
+    () => JSON.stringify(formData) !== JSON.stringify(initialData),
+    [formData, initialData]
+  );
 
-  // ── Build Payload for Review ───────────────────────────
+  // ── Build Payload ──────────────────────────────────────
   const buildPayload = () => {
     const payload: any = {
-      employee_id: initialData.employee_id,
+      employee_id: initialData.employee_id, // ✅ flat on initialData
       old_data: {},
       new_data: {},
       change_description: "Profile Update",
     };
 
-    const keys = [ 
+    const keys = [
       "firstname", "middlename", "surname", "suffix",
       "birthdate", "birthplace",
-      "sex", "civil_status", "blood_type","height", "weight",
-      "mobile_no", "email_address", "telephone_no", 
-      "citizenship", "citizenship_category",  "citizenship_country",
-      "ra_house_block_lotno", "ra_street","ra_subdivision_village",  "ra_barangay","ra_city_municipality", "ra_province", "ra_zipcode",
-      "pa_house_block_lotno", "pa_street","pa_subdivision_village",  "pa_barangay","pa_city_municipality", "pa_province", "pa_zipcode",
+      "sex", "civil_status", "blood_type", "height", "weight",
+      "mobile_no", "email_address", "telephone_no",
+      "citizenship", "citizenship_category", "citizenship_country",
+      "ra_house_block_lotno", "ra_street", "ra_subdivision_village", "ra_barangay", "ra_city_municipality", "ra_province", "ra_zipcode",
+      "pa_house_block_lotno", "pa_street", "pa_subdivision_village", "pa_barangay", "pa_city_municipality", "pa_province", "pa_zipcode",
 
-      "emp_education", "emp_work_exp", "emp_eligibility", "emp_voluntary_work", "emp_ldinterventions",
+      "family","emp_children","emp_education", "emp_work_exp", "emp_eligibility", "emp_voluntary_work", "emp_ldinterventions",
     ];
 
     keys.forEach((key) => {
@@ -105,12 +165,9 @@ export default function EditProfileModal({
     return payload;
   };
 
-  // ── Submit Flow (Two-Step: Review → Confirm) ───────────
+  // ── Submit Flow ────────────────────────────────────────
   const handleSubmit = () => {
-    if (!hasChanges) {
-      alert("No changes detected.");
-      return;
-    }
+    if (!hasChanges) { alert("No changes detected."); return; }
     setReviewPayload(buildPayload());
     setShowReview(true);
   };
@@ -118,20 +175,15 @@ export default function EditProfileModal({
   const confirmSubmit = async () => {
     if (!reviewPayload) return;
     setSubmitting(true);
-
     try {
       const data = await apiFetch("/protected/insert_changeinforequest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reviewPayload),
       });
-
       if (data.success) {
         setSubmitted(true);
-        setTimeout(() => {
-          onSubmit();
-          onClose();
-        }, 1200);
+        setTimeout(() => { onSubmit(); onClose(); }, 1200);
       } else {
         alert("Failed to submit changes");
       }
@@ -150,16 +202,15 @@ export default function EditProfileModal({
     return () => { document.body.style.overflow = ""; };
   }, []);
 
-  // ── Shared Props for Array Sections ────────────────────
+  // ── Shared Props for other Array Sections ──────────────
   const arrayProps = {
     onArrayChange: handleArrayChange,
-    onAdd: addRecord,
-    onDelete: deleteRecord,
+    onAdd:         addRecord,
+    onDelete:      deleteRecord,
   };
 
   return (
     <>
-      {/* Minimal custom styles: fonts + essential animations only */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
         .modal-root * { font-family: 'Sora', sans-serif; }
@@ -175,7 +226,6 @@ export default function EditProfileModal({
         .success-icon { animation: successPop 0.4s cubic-bezier(0.22,1,0.36,1) both; }
         .record-in { animation: recordIn 0.22s ease both; }
 
-        /* Custom scrollbar for consistency */
         .scrollbar-thin::-webkit-scrollbar { width: 4px; }
         .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
         .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
@@ -188,7 +238,7 @@ export default function EditProfileModal({
         onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       >
         <div className="modal-card bg-card w-full sm:max-w-2xl lg:max-w-3xl flex flex-col rounded-t-[20px] sm:rounded-[20px] max-h-[92dvh] border border-border shadow-xl">
-          
+
           {/* ── Header ── */}
           <div className="flex items-center justify-between px-5 pt-5 pb-4 flex-shrink-0 border-b border-border relative">
             <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-muted sm:hidden" />
@@ -205,14 +255,25 @@ export default function EditProfileModal({
             </button>
           </div>
 
-          {/* ── Body (Accordion Sections) ── */}
+          {/* ── Body ── */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-thin px-4 sm:px-5 py-4 space-y-3">
+
+            {/* ✅ Personal fields flat on formData */}
             <PersonalInfoSection
               formData={formData}
               isOpen={!!openSections.personal}
               onToggle={() => toggleSection("personal")}
               onFieldChange={handleFieldChange}
             />
+            <FamilyBackgroundSection
+              formData={formData.family ?? {}}
+              records={formData.family?.emp_children ?? []}
+              isOpen={!!openSections.family}
+              onToggle={() => toggleSection("family")}
+              onFieldChange={handleFieldChange}
+              {...arrayProps}
+            />
+
             <EducationSection records={formData.emp_education ?? []} isOpen={!!openSections.education} onToggle={() => toggleSection("education")} {...arrayProps} />
             <WorkExperienceSection records={formData.emp_work_exp ?? []} isOpen={!!openSections.work} onToggle={() => toggleSection("work")} {...arrayProps} />
             <EligibilitySection records={formData.emp_eligibility ?? []} isOpen={!!openSections.eligibility} onToggle={() => toggleSection("eligibility")} {...arrayProps} />
@@ -224,7 +285,11 @@ export default function EditProfileModal({
           <div className="flex-shrink-0 flex items-center justify-between gap-3 px-5 py-4 border-t border-border">
             <p className="text-xs text-muted-foreground hidden sm:block">Changes will be submitted for review.</p>
             <div className="flex items-center gap-3 ml-auto">
-              <Button variant="outline" onClick={onClose} className="rounded-full px-5 font-semibold border-border hover:bg-muted">
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="rounded-full px-5 font-semibold border-border hover:bg-muted"
+              >
                 Cancel
               </Button>
               <Button
@@ -254,14 +319,7 @@ export default function EditProfileModal({
 
       {/* ================= REVIEW DIALOG ================= */}
       <Dialog open={showReview} onOpenChange={setShowReview}>
-        <DialogContent className="max-w-4xl z-[70] bg-card text-card-foreground border-border rounded-[20px]">
-          <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle className="text-xl font-bold text-foreground">Review Your Changes</DialogTitle>
-            <DialogDescription className="text-muted-foreground">
-              Please review the updated information before confirming submission.
-            </DialogDescription>
-          </DialogHeader>
-
+       
           <ReviewChanges
             open={showReview}
             oldData={reviewPayload?.old_data}
@@ -269,7 +327,6 @@ export default function EditProfileModal({
             onCancel={() => setShowReview(false)}
             onConfirm={confirmSubmit}
           />
-        </DialogContent>
       </Dialog>
     </>
   );
