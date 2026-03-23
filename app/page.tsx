@@ -565,67 +565,26 @@ function FlipCard({
 
 export default function HRISLandingPage() {
   const [dark, setDark] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => { setTimeout(() => setVisible(true), 100); }, []);
 
   const t = dark ? DARK : LIGHT;
-  const accent = "#1976D2";
 
   return (
-    <div style={{ backgroundColor: t.bg, color: t.text, transition: "background-color .3s, color .3s", minHeight: "100vh" }}>
+    <div
+      style={{
+        backgroundColor: t.bg,
+        color: t.text,
+        transition: "background-color .3s, color .3s",
+        minHeight: "100vh",
+      }}
+    >
+      {/* Global styles injected once */}
+      <style>{GLOBAL_STYLES}</style>
 
-      {/* ── Global button gradient hover styles ── */}
-      <style>{`
-        .hris-btn {
-          position: relative;
-          overflow: hidden;
-          z-index: 0;
-          transition: color 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease !important;
-        }
-        .hris-btn::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, #1CA7EC 0%, #1F2F98 100%);
-          opacity: 0;
-          transition: opacity 0.28s ease;
-          z-index: -1;
-          border-radius: inherit;
-        }
-        .hris-btn:hover::before { opacity: 1; }
-        .hris-btn:hover {
-          color: #ffffff !important;
-          border-color: transparent !important;
-          box-shadow: 0 6px 22px rgba(28, 167, 236, 0.40) !important;
-        }
-        .hris-btn-soft {
-          position: relative;
-          overflow: hidden;
-          z-index: 0;
-          transition: color 0.28s ease, box-shadow 0.28s ease !important;
-        }
-        .hris-btn-soft::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, #1CA7EC 0%, #1F2F98 100%);
-          opacity: 0;
-          transition: opacity 0.28s ease;
-          z-index: -1;
-          border-radius: inherit;
-        }
-        .hris-btn-soft:hover::before { opacity: 1; }
-        .hris-btn-soft:hover {
-          color: #ffffff !important;
-          box-shadow: 0 3px 14px rgba(28, 167, 236, 0.30) !important;
-        }
-        .hris-btn-icon {
-          transition: opacity 0.2s ease !important;
-        }
-        .hris-btn-icon:hover { opacity: 0.75; }
-      `}</style>
+      {/* ── Layout shell ── */}
+      <Navbar dark={dark} onToggleDark={() => setDark(v => !v)} t={t} />
 
       {/* ── NAV ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md shadow-sm"
@@ -936,29 +895,7 @@ export default function HRISLandingPage() {
 
       {/* ── CTA ── */}
       <CTASection />
-
-      {/* ── FOOTER ── */}
-      <footer className="py-8 px-4 sm:px-6" style={{ backgroundColor: t.bg, borderTop: `1px solid ${t.sep}` }}>
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img src="/image6.png" alt="Logo" className="w-8 h-8 object-contain rounded-lg" />
-            <div>
-              <p className="text-xs font-bold" style={{ color: t.text }}>City Government HRIS Portal</p>
-              <p className="text-xs" style={{ color: t.muted }}>Human Resource Information System</p>
-            </div>
-          </div>
-          <p className="text-xs text-center" style={{ color: t.muted }}>
-            © {new Date().getFullYear()} City Government. All rights reserved. Powered by HRMO.
-          </p>
-          <div className="flex items-center gap-4">
-            {["Privacy Policy", "Terms", "Contact HRMO"].map(l => (
-              <a key={l} href="#" className="text-xs hover:opacity-80 transition-opacity"
-                style={{ color: t.muted }}>{l}</a>
-            ))}
-          </div>
-        </div>
-      </footer>
-
+      <Footer t={t} />
     </div>
   );
 }
