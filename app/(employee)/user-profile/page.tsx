@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 
 import { getEmployeeId, logout, apiFetch } from "@/lib/api/personal-info/auth";
-import AdditionalQuestionsSectionUI from "@/components/employee-components/personal-info-employee/question";
+
 
 const UserProfilePage = () => {
   const [employeeData, setEmployeeData] = useState<any>(null);
@@ -41,9 +41,7 @@ const UserProfilePage = () => {
         logout();
         return;
       }
-
       setLoading(true);
-
       try {
         const data = await apiFetch(`/protected/view_employee/${employeeId}`);
         setEmployeeData(data?.success ? data.data : {});
@@ -66,12 +64,10 @@ const UserProfilePage = () => {
         </div>
       </div>
     );
-
   if (error) return <div className="p-4 text-destructive text-sm">{error}</div>;
 
   if (!employeeData)
     return <div className="p-4 text-muted-foreground text-sm">No employee data found.</div>;
-
   const tabs = [
     {
       label: "Personal Profile",

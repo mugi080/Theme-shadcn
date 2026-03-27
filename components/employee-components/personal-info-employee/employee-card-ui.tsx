@@ -96,7 +96,7 @@ export default function EmployeeCard() {
           </p>
 
           <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
-            <span className="bg-primary/20 text-primary px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+            <span className="px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest" style={{ background: "#00800091", color: "var(--primary)" }}>
               Active
             </span>
 

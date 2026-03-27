@@ -38,6 +38,7 @@ export default function EmployeeLayout({ children }: EmployeeLayoutProps) {
 
   // 🔐 Initialize idle timer with warning support
   const { reset: resetIdleTimer } = useIdleTimer({
+    
     timeout: 15 * 60 * 1000,      // ✅ 15 minutes total (enterprise standard)
     promptTimeout: 2 * 60 * 1000, // ✅ Warning at 13 minutes (2 min warning)
     promptBeforeIdle: true,
@@ -50,6 +51,7 @@ export default function EmployeeLayout({ children }: EmployeeLayoutProps) {
 
   // 🔐 Store reset function so SessionWarning can access it
   useEffect(() => {
+    
     idleTimerResetRef.current = resetIdleTimer;
   }, [resetIdleTimer]);
 

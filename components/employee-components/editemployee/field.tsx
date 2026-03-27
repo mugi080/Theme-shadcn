@@ -47,7 +47,6 @@ export default function Field({
           }
         `}
       />
-
       {/* Floating label */}
       <label
         className={`

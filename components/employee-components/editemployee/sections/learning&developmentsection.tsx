@@ -5,12 +5,8 @@ import AccordionSection from "../accordionSection";
 import Field from "../field";
 
 const BLANK_LD = {
-  title: "",
-  date_from: "",
-  date_to: "",
-  no_hours: "",
+  title: "",date_from: "",date_to: "",no_hours: "",
 };
-
 interface LearningDevelopmentSectionProps {
   records: any[];
   isOpen: boolean;
@@ -21,33 +17,15 @@ interface LearningDevelopmentSectionProps {
 }
 
 export default function LearningDevelopmentSection({
-  records,
-  isOpen,
-  onToggle,
-  onArrayChange,
-  onAdd,
-  onDelete,
+  records,isOpen,onToggle,onArrayChange,onAdd,onDelete,
+
 }: LearningDevelopmentSectionProps) {
   return (
-    <AccordionSection
-      sectionKey="ld"
-      label="Learning & Development"
-      Icon={BookOpen}
-      gradient="from-cyan-500 to-cyan-600"
-      isOpen={isOpen}
-      onToggle={onToggle}
-    >
+    <AccordionSection sectionKey="ld"label="Learning & Development"Icon={BookOpen}gradient="from-cyan-500 to-cyan-600"isOpen={isOpen}onToggle={onToggle}>
       {records.map((ld: any, i: number) => (
         <div key={ld.ld_intervention_id ?? i} className="record-card record-in">
-          <button
-            className="delete-btn"
-            onClick={() => onDelete("emp_ldinterventions", i)}
-            title="Remove record"
-          >
-            <Trash2 size={13} />
-          </button>
+          <button className="delete-btn" onClick={() => onDelete("emp_ldinterventions", i)}title="Remove record" ><Trash2 size={13} /> </button>
           <p className="record-index">Record #{i + 1}</p>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Title"        value={ld.title}     onChange={(v) => onArrayChange("emp_ldinterventions", i, "title", v)} className="sm:col-span-2" />
             <Field label="Date From"    value={ld.date_from} type="date" onChange={(v) => onArrayChange("emp_ldinterventions", i, "date_from", v)} />
@@ -57,12 +35,8 @@ export default function LearningDevelopmentSection({
         </div>
       ))}
 
-      <button
-        className="add-btn"
-        onClick={() => onAdd("emp_ldinterventions", { ...BLANK_LD, ld_intervention_id: `new-${Date.now()}` })}
-      >
-        <Plus size={14} /> Add Training Record
-      </button>
+      <button className="add-btn"onClick={() => onAdd("emp_ldinterventions", { ...BLANK_LD, ld_intervention_id: `new-${Date.now()}` })}>
+        <Plus size={14} /> Add Training Record</button>
     </AccordionSection>
   );
 }
