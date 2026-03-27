@@ -11,6 +11,7 @@ import {
   ClipboardList, Award, Clock, MapPin, ChevronDown, Sun, Moon
 } from "lucide-react";
 import { ModeToggle } from "@/components/layout/toggle-mode";
+import { GLOBAL_STYLES } from "@/lib/styles";
 
 // ─── Theme tokens ─────────────────────────────────────────────────────────────
 

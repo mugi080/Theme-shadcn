@@ -134,7 +134,7 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Pro
     };
 
     const keys = [
-      "firstname", "middlename", "surname", "suffix", "birthdate", "birthplace",
+      "firstname", "middlename", "surname", "name_ext", "birthdate", "birthplace",
       "sex", "civil_status", "blood_type", "height", "weight",
       "mobile_no", "email_address", "telephone_no",
       "citizenship", "citizenship_category", "citizenship_country",
