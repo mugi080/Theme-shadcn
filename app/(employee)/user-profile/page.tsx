@@ -11,22 +11,9 @@ import LDInterventionSectionUI from "@/components/employee-components/personal-i
 import AdditionalInfoSectionUI from "@/components/employee-components/personal-info-employee/add-info-wrapper";
 import EmployeeCard from "@/components/employee-components/personal-info-employee/employee-card-ui";
 import { EmployeeTabs } from "@/components/layout/employee-tabs";
-
-import {
-  User,
-  Users,
-  GraduationCap,
-  FileCheck,
-  Briefcase,
-  HeartHandshake,
-  BookOpen,
-  Info,
-  HelpCircle,
-  MapPin,
-} from "lucide-react";
-
+import {User,Users,GraduationCap,FileCheck,Briefcase,HeartHandshake,BookOpen,Info} from "lucide-react";
 import { getEmployeeId, logout, apiFetch } from "@/lib/api/personal-info/auth";
-import AdditionalQuestionsSectionUI from "@/components/employee-components/personal-info-employee/question";
+
 
 const UserProfilePage = () => {
   const [employeeData, setEmployeeData] = useState<any>(null);
@@ -41,9 +28,7 @@ const UserProfilePage = () => {
         logout();
         return;
       }
-
       setLoading(true);
-
       try {
         const data = await apiFetch(`/protected/view_employee/${employeeId}`);
         setEmployeeData(data?.success ? data.data : {});
@@ -66,12 +51,10 @@ const UserProfilePage = () => {
         </div>
       </div>
     );
-
   if (error) return <div className="p-4 text-destructive text-sm">{error}</div>;
 
   if (!employeeData)
     return <div className="p-4 text-muted-foreground text-sm">No employee data found.</div>;
-
   const tabs = [
     {
       label: "Personal Profile",

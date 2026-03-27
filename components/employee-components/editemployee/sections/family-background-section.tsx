@@ -260,23 +260,12 @@ export default function FamilyBackgroundSection({
                     Child #{i + 1}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <FloatingInput
-                      id={`child_name_${i}`} label="Child's Full Name"
-                      value={child.child_name ?? ""}
-                      onChange={(v) => onArrayChange("emp_children", i, "child_name", v)}
-                      className="sm:col-span-2"
-                    />
-                    <FloatingDatePicker
-                      id={`child_bdate_${i}`} label="Birth Date"
-                      value={child.child_birthdate ?? ""}
-                      onChange={(v) => onArrayChange("emp_children", i, "child_birthdate", v)}
-                    />
-                    <FloatingSelect
-                      id={`child_status_${i}`} label="Status"
-                      value={child.status ?? ""}
-                      onValueChange={(v) => onArrayChange("emp_children", i, "status", v)}
-                      options={CHILD_STATUS_OPTIONS}
-                    />
+                    <FloatingInput id={`child_name_${i}`} label="Child's Full Name"value={child.child_name ?? ""}
+                      onChange={(v) => onArrayChange("emp_children", i, "child_name", v)}className="sm:col-span-2"/>
+                    <FloatingDatePicker id={`child_bdate_${i}`} label="Birth Date"value={child.child_birthdate ?? ""}
+                      onChange={(v) => onArrayChange("emp_children", i, "child_birthdate", v)}/>
+                    <FloatingSelect id={`child_status_${i}`} label="Status"value={child.status ?? ""}
+                      onValueChange={(v) => onArrayChange("emp_children", i, "status", v)}options={CHILD_STATUS_OPTIONS}/>
                   </div>
                 </div>
               ))}

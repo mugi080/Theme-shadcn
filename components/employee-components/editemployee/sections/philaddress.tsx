@@ -1,14 +1,11 @@
 "use client";
-
 import { useEffect, useMemo, useRef, useState } from "react";
 import rawData from "@/data/philippines.json";
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-
 // ── Types ────────────────────────────────────────────────────────
 type BarangayList    = { barangay_list: string[] };
 type MunicipalityMap = Record<string, BarangayList>;
@@ -19,7 +16,6 @@ type PhilippinesData = Record<string, RegionEntry>;
 
 const phData = rawData as unknown as PhilippinesData;
 const DEFAULT_PROVINCE = "QUEZON";
-
 // ── Helpers ──────────────────────────────────────────────────────
 const ALL_PROVINCES: string[] = Object.values(phData)
   .flatMap((r) => Object.keys(r.province_list))
@@ -33,7 +29,6 @@ function getCities(province: string): string[] {
   }
   return [];
 }
-
 function getBarangays(province: string, city: string): string[] {
   if (!province || !city) return [];
   for (const r of Object.values(phData)) {
@@ -43,7 +38,6 @@ function getBarangays(province: string, city: string): string[] {
   }
   return [];
 }
-
 // ── Floating Label Input ─────────────────────────────────────────
 function FloatInput({
   id, label, value, onChange, className = "",
@@ -67,7 +61,6 @@ function FloatInput({
     </div>
   );
 }
-
 // ── Floating Label Select ────────────────────────────────────────
 // ✅ NO manual ChevronDown — SelectTrigger already has one built in
 function FloatSelect({
@@ -175,78 +168,27 @@ export default function PhAddressFields({
 
   const handleProvinceChange = (v: string) => {
     onChange(f("province"), v);
-    if (v !== values.province) {
-      onChange(f("city_municipality"), "");
-      onChange(f("barangay"), "");
-    }
-  };
+    if (v !== values.province) {onChange(f("city_municipality"), "");onChange(f("barangay"), ""); }};
 
-  const handleCityChange = (v: string) => {
-    onChange(f("city_municipality"), v);
-    if (v !== values.city_municipality) onChange(f("barangay"), "");
-  };
-
+  const handleCityChange = (v: string) => {onChange(f("city_municipality"), v);
+    if (v !== values.city_municipality) onChange(f("barangay"), "");};
   return (
     <>
       <Divider label={label} />
-
       {/* Row 1 — House + Street */}
-      <FloatInput
-        id={`${prefix}_house_block_lotno`}
-        label="House / Block / Lot No."
-        value={values.house_block_lotno}
-        onChange={(v) => onChange(f("house_block_lotno"), v)}
-      />
-      <FloatInput
-        id={`${prefix}_street`}
-        label="Street"
-        value={values.street}
-        onChange={(v) => onChange(f("street"), v)}
-      />
-
+      <FloatInput id={`${prefix}_house_block_lotno`}label="House / Block / Lot No."value={values.house_block_lotno}onChange={(v) => onChange(f("house_block_lotno"), v)}/>
+      <FloatInput id={`${prefix}_street`}label="Street"value={values.street}onChange={(v) => onChange(f("street"), v)}/>
       {/* Row 2 — Subdivision (full width) */}
-      <FloatInput
-        id={`${prefix}_subdivision_village`}
-        label="Subdivision / Village"
-        value={values.subdivision_village}
-        onChange={(v) => onChange(f("subdivision_village"), v)}
-        className="sm:col-span-2"
-      />
+      <FloatInput id={`${prefix}_subdivision_village`}label="Subdivision / Village"value={values.subdivision_village}onChange={(v) => onChange(f("subdivision_village"), v)}className="sm:col-span-2"/>
 
       {/* Row 3 — Province + City */}
-      <FloatSelect
-        id={`${prefix}_province`}
-        label="Province"
-        value={values.province}
-        options={ALL_PROVINCES}
-        onChange={handleProvinceChange}
-        placeholder="Select province…"
-      />
-      <FloatSelect
-        id={`${prefix}_city_municipality`}
-        label="City / Municipality"
-        value={values.city_municipality}
-        options={cities}
-        onChange={handleCityChange}
-        disabled={!values.province}
-        placeholder={values.province ? "Select city…" : "Select province first"}
-      />
-
+      <FloatSelect id={`${prefix}_province`}label="Province"value={values.province}options={ALL_PROVINCES} onChange={handleProvinceChange}placeholder="Select province…"/>
+      <FloatSelect id={`${prefix}_city_municipality`}label="City / Municipality"value={values.city_municipality}options={cities}
+        onChange={handleCityChange}disabled={!values.province}placeholder={values.province ? "Select city…" : "Select province first"}/>
       {/* Row 4 — Barangay + Zip */}
-      <FloatSelect
-        id={`${prefix}_barangay`}
-        label="Barangay"
-        value={values.barangay}
-        options={barangays}
-        onChange={(v) => onChange(f("barangay"), v)}
-        disabled={!values.city_municipality}
-        placeholder={values.city_municipality ? "Select barangay…" : "Select city first"}
-      />
-      <FloatInput
-        id={`${prefix}_zipcode`}
-        label="Zip Code"
-        value={values.zipcode}
-        onChange={(v) => onChange(f("zipcode"), v)}
+      <FloatSelect id={`${prefix}_barangay`}label="Barangay"value={values.barangay}options={barangays}onChange={(v) => onChange(f("barangay"), v)}
+        disabled={!values.city_municipality}placeholder={values.city_municipality ? "Select barangay…" : "Select city first"}/>
+      <FloatInput id={`${prefix}_zipcode`}label="Zip Code"value={values.zipcode}onChange={(v) => onChange(f("zipcode"), v)}
       />
     </>
   );
