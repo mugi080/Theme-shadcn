@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { Calendar, Building2, ArrowRight, Megaphone } from "lucide-react";
-import { ANNOUNCEMENTS } from "@/lib/constants";
+
 /* Shadcn UI Primitives */
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
