@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> bbf25c88125faa8dbdb198c4bfa8187055806b9f
 import AnnouncementSlideshow from "@/components/layout/landing-page/AnnouncementsSlideshow";
 import CTASection from '@/components/layout/landing-page/CTASection';
 import FeaturesSection from '@/components/layout/landing-page/FeaturesSection';
