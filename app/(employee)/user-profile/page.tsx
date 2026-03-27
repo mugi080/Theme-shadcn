@@ -11,14 +11,15 @@ import LDInterventionSectionUI from "@/components/employee-components/personal-i
 import AdditionalInfoSectionUI from "@/components/employee-components/personal-info-employee/add-info-wrapper";
 import EmployeeCard from "@/components/employee-components/personal-info-employee/employee-card-ui";
 import { EmployeeTabs } from "@/components/layout/employee-tabs";
-import {User,Users,GraduationCap,FileCheck,Briefcase,HeartHandshake,BookOpen,Info} from "lucide-react";
+import { User, Users, GraduationCap, FileCheck, Briefcase, HeartHandshake, BookOpen, Info, ArrowLeft } from "lucide-react";
 import { getEmployeeId, logout, apiFetch } from "@/lib/api/personal-info/auth";
-
+import EditRequestPage from "@/components/employee-components/edit-request/page"; // Adjust path as needed
 
 const UserProfilePage = () => {
   const [employeeData, setEmployeeData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showEditRequests, setShowEditRequests] = useState(false);
 
   const employeeId = getEmployeeId();
 
@@ -55,6 +56,7 @@ const UserProfilePage = () => {
 
   if (!employeeData)
     return <div className="p-4 text-muted-foreground text-sm">No employee data found.</div>;
+
   const tabs = [
     {
       label: "Personal Profile",
@@ -120,16 +122,38 @@ const UserProfilePage = () => {
     },
   ];
 
-  return (
-    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 pt-0 pb-6">
-      <EmployeeCard />
-
-      <div className="bg-card rounded-2xl shadow-sm border border-border mt-3 sm:mt-5 overflow-hidden">
-        <EmployeeTabs tabs={tabs} />
+  // ✅ FULL SCREEN EDIT REQUESTS VIEW
+  if (showEditRequests) {
+    return (
+      <div className="h-full flex flex-col">
+        {/* Header with Back Button */}
+        <div className="flex items-center justify-between mb-6 pb-4 border-b">
+          <button
+            onClick={() => setShowEditRequests(false)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-muted transition-colors text-sm font-medium"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Profile
+          </button>
+          <h1 className="text-2xl font-bold">My Edit Requests</h1>
+          <div className="w-32" /> {/* Spacer for centering */}
+        </div>
+        
+        {/* Full Screen Edit Request Content */}
+        <div className="flex-1 overflow-auto">
+          <EditRequestPage />
+        </div>
       </div>
+    );
+  }
+
+  // ✅ NORMAL PROFILE VIEW
+  return (
+    <div className="space-y-6">
+      <EmployeeCard onEditRequestsToggle={setShowEditRequests} />
+      <EmployeeTabs tabs={tabs} />
     </div>
   );
 };
 
 export default UserProfilePage;
-

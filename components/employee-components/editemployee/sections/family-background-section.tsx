@@ -77,7 +77,6 @@ function FloatingSelect({ id, label, value, onValueChange, options, className = 
     </div>
   );
 }
-
 // ── Floating Date Picker ─────────────────────────────────────────
 function FloatingDatePicker({ id, label, value, onChange, className = "" }: {
   id: string; label: string; value: string; onChange: (v: string) => void; className?: string;
@@ -165,7 +164,6 @@ function FloatingDatePicker({ id, label, value, onChange, className = "" }: {
     </div>
   );
 }
-
 // ── Person Card — no color props, uses neutral primary/60 ────────
 function PersonCard({ title, children }: {
   title: string; children: React.ReactNode;
@@ -183,7 +181,6 @@ function PersonCard({ title, children }: {
     </div>
   );
 }
-
 // ── Main Component ───────────────────────────────────────────────
 export default function FamilyBackgroundSection({
   formData, records, isOpen, onToggle,
@@ -204,7 +201,6 @@ export default function FamilyBackgroundSection({
         </AccordionTrigger>
 
         <AccordionContent className="px-4 pb-4 pt-3 bg-background space-y-3">
-
           {/* ── Spouse ── */}
           <PersonCard title="Spouse Information">
             <FloatingInput id="spouse_fn"   label="First Name"               value={family.spouse_firstname ?? ""}              onChange={(v) => onFieldChange("spouse_firstname", v)} />
@@ -216,7 +212,6 @@ export default function FamilyBackgroundSection({
             <FloatingInput id="spouse_addr" label="Business Address"         value={family.spouse_business_address ?? ""}       onChange={(v) => onFieldChange("spouse_business_address", v)}        className="sm:col-span-2" />
             <FloatingInput id="spouse_tel"  label="Telephone / Mobile No."   value={family.spouse_telephone_no ?? ""}           onChange={(v) => onFieldChange("spouse_telephone_no", v)}            className="sm:col-span-2" type="tel" />
           </PersonCard>
-
           {/* ── Father ── */}
           <PersonCard title="Father's Information">
             <FloatingInput id="father_fn"  label="First Name"     value={family.father_firstname ?? ""}  onChange={(v) => onFieldChange("father_firstname", v)} />

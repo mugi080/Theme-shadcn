@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { GraduationCap, CalendarIcon, Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";

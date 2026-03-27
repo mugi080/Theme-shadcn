@@ -1,12 +1,6 @@
 "use client"
 import { useEffect } from "react"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog"
+import {Dialog,DialogContent,DialogHeader,DialogTitle,DialogFooter,} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -21,7 +15,6 @@ interface Props {
   onCancel: () => void
   onConfirm: () => void
 }
-
 // ── Human-readable labels ─────────────────────────────────────────
 const FIELD_LABELS: Record<string, string> = {
   firstname: "First Name",          middlename: "Middle Name",    surname: "Last Name",   suffix: "name_ext",
@@ -64,18 +57,15 @@ const FIELD_LABELS: Record<string, string> = {
   // L&D
   title: "Training Title",                  ld_type: "Type of L&D",                         conducted_by: "Conducted By",
 }
-
 // ── Keys to never show in diff ────────────────────────────────────
 const SKIP_KEYS = new Set([
   "id", "employee_id", "children_id", "education_id", "work_id", "eligibility_id",
   "voluntary_id", "ld_id", "family_id", "level_id", "created_at", "updated_at",
   "deleted_at", "emp_children",
 ])
-
 const toLabel = (key: string) =>
   FIELD_LABELS[key] ??
   key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-
 // ── Smart value formatter ─────────────────────────────────────────
 const formatValue = (value: any): string => {
   if (value === null || value === undefined || value === "") return "—"
@@ -93,8 +83,7 @@ const formatValue = (value: any): string => {
   }
   if (Array.isArray(value)) return `${value.length} item(s)`
   return String(value)
-}
-
+} 
 // ── Auto-detect all meaningful fields from two arrays ─────────────
 const autoFields = (oldArr: any[], newArr: any[]) =>
   Array.from(

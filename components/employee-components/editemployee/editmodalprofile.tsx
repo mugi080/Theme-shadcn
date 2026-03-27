@@ -241,7 +241,6 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Pro
       {/* ================= MAIN MODAL ================= */}
       <div
         className="modal-overlay modal-root fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-sm"
-        onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       >
         <div className="modal-card bg-card w-full sm:max-w-2xl lg:max-w-3xl flex flex-col rounded-t-[20px] sm:rounded-[20px] max-h-[92dvh] border border-border shadow-xl">
 
