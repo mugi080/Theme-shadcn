@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-const BLANK_VOLUNTARY = { organization_name:"", position_nature_of_work:"", date_from:"", date_to:"", no_hours:"" };
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const BLANK_VOLUNTARY = { organization_name: "", organization_address: "", position_nature_of_work: "", date_from: "", date_to: "", no_hours: "" };
 
 interface VoluntaryWorkSectionProps {
   records: any[]; isOpen: boolean; onToggle: () => void;
@@ -37,6 +37,7 @@ function FloatingInput({ id, label, value, onChange, type = "text", className = 
     </div>
   );
 }
+
 
 function FloatingDatePicker({ id, label, value, onChange, className = "" }: {
   id: string; label: string; value: string; onChange: (v: string) => void; className?: string;
@@ -90,7 +91,7 @@ function FloatingDatePicker({ id, label, value, onChange, className = "" }: {
             <button type="button" onClick={() => setViewDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1))} className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"><ChevronRight size={13} /></button>
           </div>
           <CalendarComponent mode="single" selected={selected} month={viewDate} onMonthChange={setViewDate} hideNavigation
-            onSelect={(d) => { if (!d) return; onChange(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`); setOpen(false); }}
+            onSelect={(d) => { if (!d) return; onChange(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`); setOpen(false); }}
             className="bg-popover text-popover-foreground pt-0" />
         </PopoverContent>
       </Popover>
@@ -129,6 +130,7 @@ export default function VoluntaryWorkSection({ records, isOpen, onToggle, onArra
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <SectionDivider label="Organization Details" />
                 <FloatingInput id={`org_name_${i}`} label="Organization Name" value={vol.organization_name ?? ""} onChange={(v) => onArrayChange("emp_voluntary_work", i, "organization_name", v)} className="sm:col-span-2" />
+                <FloatingInput id={`org_address_${i}`} label="Organization Address" value={vol.organization_address ?? ""} onChange={(v) => onArrayChange("emp_voluntary_work", i, "organization_address", v)} className="sm:col-span-2" />
                 <FloatingInput id={`position_${i}`} label="Position / Nature of Work" value={vol.position_nature_of_work ?? ""} onChange={(v) => onArrayChange("emp_voluntary_work", i, "position_nature_of_work", v)} className="sm:col-span-2" />
                 <SectionDivider label="Service Period" />
                 <FloatingDatePicker id={`vol_date_from_${i}`} label="Date From" value={vol.date_from ?? ""} onChange={(v) => onArrayChange("emp_voluntary_work", i, "date_from", v)} />

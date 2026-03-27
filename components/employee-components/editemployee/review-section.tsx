@@ -1,18 +1,27 @@
 "use client"
-import {Dialog,DialogContent,DialogHeader,DialogTitle,DialogFooter,} from "@/components/ui/dialog"
+import { useEffect } from "react"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Sparkles, PenLine } from "lucide-react"
+import { PenLine } from "lucide-react"
+
 interface Props {
   open: boolean
   oldData: any
   newData: any
-  description: string                        // ← ADD
-  onDescriptionChange: (val: string) => void // ← ADD
+  description: string
+  onDescriptionChange: (val: string) => void
   onCancel: () => void
   onConfirm: () => void
 }
+
 // ── Human-readable labels ─────────────────────────────────────────
 const FIELD_LABELS: Record<string, string> = {
   firstname: "First Name",          middlename: "Middle Name",    surname: "Last Name",   suffix: "name_ext",
@@ -28,6 +37,9 @@ const FIELD_LABELS: Record<string, string> = {
   pa_subdivision_village: "Permanent Subdivision/Village",         pa_barangay: "Permanent Barangay",
   pa_city_municipality: "Permanent City/Municipality",             pa_province: "Permanent Province",
   pa_zipcode: "Permanent Zip Code",
+  gsis_no: "GSIS No.",                pagibig_no: "PAG-IBIG No.",              philhealth_no: "PhilHealth No.",
+  sss_no: "SSS No.",                  tin_no: "TIN No.",                      agency_emp_no: "Agency Employee No.",
+
   // Family
   spouse_firstname: "Spouse First Name",     spouse_middlename: "Spouse Middle Name",      spouse_surname: "Spouse Last Name",
   spouse_name_ext: "Spouse Name Ext.",       spouse_occupation: "Spouse Occupation",
@@ -36,6 +48,7 @@ const FIELD_LABELS: Record<string, string> = {
   father_firstname: "Father First Name",     father_middlename: "Father Middle Name",       father_surname: "Father Last Name",
   father_name_ext: "Father Name Ext.",
   mother_firstname: "Mother First Name",     mother_middlename: "Mother Middle Name",       mother_surname: "Mother Last Name",
+  mother_name_ext: "Mother Name Ext.",
   // Children
   child_name: "Child Name",                 child_birthdate: "Child Birth Date",            status: "Status",
   // Education
@@ -54,29 +67,29 @@ const FIELD_LABELS: Record<string, string> = {
   // L&D
   title: "Training Title",                  ld_type: "Type of L&D",                         conducted_by: "Conducted By",
 }
+
 // ── Keys to never show in diff ────────────────────────────────────
 const SKIP_KEYS = new Set([
-  "id", "employee_id", "children_id", "education_id", "work_id","eligibility_id", "voluntary_id", "ld_id", "family_id",
-  "level_id", "created_at", "updated_at", "deleted_at", "emp_children",])
+  "id", "employee_id", "children_id", "education_id", "work_id", "eligibility_id",
+  "voluntary_id", "ld_id", "family_id", "level_id", "created_at", "updated_at",
+  "deleted_at", "emp_children",
+])
+
 const toLabel = (key: string) =>
   FIELD_LABELS[key] ??
   key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-// ── Smart value formatter — extracts readable text from objects ───
+
+// ── Smart value formatter ─────────────────────────────────────────
 const formatValue = (value: any): string => {
   if (value === null || value === undefined || value === "") return "—"
   if (typeof value === "boolean") return value ? "Yes" : "No"
-
-  // ✅ If it's an object, try common "name" keys before falling back to JSON
   if (typeof value === "object" && !Array.isArray(value)) {
-    if (value.level_name)    return value.level_name
-    if (value.name)          return value.name
-    if (value.title)         return value.title
-    if (value.description)   return value.description
-    // Fallback: show all non-meta string values joined
+    if (value.level_name)  return value.level_name
+    if (value.name)        return value.name
+    if (value.title)       return value.title
+    if (value.description) return value.description
     const readable = Object.entries(value)
-      .filter(([k, v]) =>
-        !SKIP_KEYS.has(k) && v !== null && v !== undefined && typeof v !== "object"
-      )
+      .filter(([k, v]) => !SKIP_KEYS.has(k) && v !== null && v !== undefined && typeof v !== "object")
       .map(([, v]) => String(v))
       .join(", ")
     return readable || "—"
@@ -84,6 +97,7 @@ const formatValue = (value: any): string => {
   if (Array.isArray(value)) return `${value.length} item(s)`
   return String(value)
 }
+
 // ── Auto-detect all meaningful fields from two arrays ─────────────
 const autoFields = (oldArr: any[], newArr: any[]) =>
   Array.from(
@@ -97,31 +111,21 @@ const autoFields = (oldArr: any[], newArr: any[]) =>
 function DiffRow({ oldVal, newVal }: { oldVal: any; newVal: any }) {
   const oldText = formatValue(oldVal)
   const newText = formatValue(newVal)
-
   return (
     <div className="flex items-start gap-2 mt-1">
-      {/* Previous */}
       <div className="flex-1 min-w-0 rounded-md bg-destructive/5 border border-destructive/10 px-3 py-2">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-destructive mb-0.5">Previous
-        </p>
-        <p className="text-sm text-muted-foreground break-words leading-snug">
-          {oldText}
-        </p>
+        <p className="text-[10px] font-bold uppercase tracking-wider text-destructive mb-0.5">Previous</p>
+        <p className="text-sm text-muted-foreground break-words leading-snug">{oldText}</p>
       </div>
-      {/* Arrow */}
       <div className="shrink-0 mt-5 text-muted-foreground/40 text-sm select-none">→</div>
-      {/* New */}
       <div className="flex-1 min-w-0 rounded-md bg-primary/5 border border-primary/10 px-3 py-2">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-primary mb-0.5">
-          New
-        </p>
-        <p className="text-sm font-semibold text-foreground break-words leading-snug">
-          {newText}
-        </p>
+        <p className="text-[10px] font-bold uppercase tracking-wider text-primary mb-0.5">New</p>
+        <p className="text-sm font-semibold text-foreground break-words leading-snug">{newText}</p>
       </div>
     </div>
   )
 }
+
 // ── Section card wrapper ──────────────────────────────────────────
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -145,16 +149,8 @@ function FieldChange({ fieldKey, oldVal, newVal }: { fieldKey: string; oldVal: a
   )
 }
 
-// ── Flat object diff (personal info, family fields) ───────────────
-function FlatObjectDiff({
-  oldObj,
-  newObj,
-  skipKeys = [],
-}: {
-  oldObj: any
-  newObj: any
-  skipKeys?: string[]
-}) {
+// ── Flat object diff ──────────────────────────────────────────────
+function FlatObjectDiff({ oldObj, newObj, skipKeys = [] }: { oldObj: any; newObj: any; skipKeys?: string[] }) {
   const skip = new Set([...SKIP_KEYS, ...skipKeys])
   const allKeys = Array.from(
     new Set([...Object.keys(oldObj ?? {}), ...Object.keys(newObj ?? {})])
@@ -163,9 +159,7 @@ function FlatObjectDiff({
   const changedKeys = allKeys.filter(
     (k) => JSON.stringify(oldObj?.[k]) !== JSON.stringify(newObj?.[k])
   )
-
   if (changedKeys.length === 0) return null
-
   return (
     <>
       {changedKeys.map((k) => (
@@ -174,6 +168,7 @@ function FlatObjectDiff({
     </>
   )
 }
+
 // ── Children diff ─────────────────────────────────────────────────
 function ChildrenDiff({ oldChildren, newChildren }: { oldChildren: any[]; newChildren: any[] }) {
   const old_ = oldChildren ?? []
@@ -181,6 +176,7 @@ function ChildrenDiff({ oldChildren, newChildren }: { oldChildren: any[]; newChi
   const maxLen = Math.max(old_.length, new_.length)
   if (maxLen === 0) return null
   const rows: React.ReactNode[] = []
+
   for (let i = 0; i < maxLen; i++) {
     const o = old_[i]
     const n = new_[i]
@@ -188,9 +184,7 @@ function ChildrenDiff({ oldChildren, newChildren }: { oldChildren: any[]; newChi
     if (!o && n) {
       rows.push(
         <div key={i} className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
-          <p className="text-xs font-bold text-primary uppercase tracking-wider mb-1">
-            + Child #{i + 1} Added
-          </p>
+          <p className="text-xs font-bold text-primary uppercase tracking-wider mb-1">+ Child #{i + 1} Added</p>
           <p className="text-sm text-foreground font-medium">
             {n.child_name || "—"} &nbsp;·&nbsp; {n.child_birthdate || "—"}
           </p>
@@ -201,9 +195,7 @@ function ChildrenDiff({ oldChildren, newChildren }: { oldChildren: any[]; newChi
     if (o && !n) {
       rows.push(
         <div key={i} className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3">
-          <p className="text-xs font-bold text-destructive uppercase tracking-wider mb-1">
-            − Child #{i + 1} Removed
-          </p>
+          <p className="text-xs font-bold text-destructive uppercase tracking-wider mb-1">− Child #{i + 1} Removed</p>
           <p className="text-sm text-muted-foreground line-through">
             {o.child_name || "—"} &nbsp;·&nbsp; {o.child_birthdate || "—"}
           </p>
@@ -212,16 +204,11 @@ function ChildrenDiff({ oldChildren, newChildren }: { oldChildren: any[]; newChi
       continue
     }
     const childFields = ["child_name", "child_birthdate", "status"]
-    const changed = childFields.filter(
-      (f) => JSON.stringify(o?.[f]) !== JSON.stringify(n?.[f])
-    )
-
+    const changed = childFields.filter((f) => JSON.stringify(o?.[f]) !== JSON.stringify(n?.[f]))
     if (changed.length > 0) {
       rows.push(
         <div key={i} className="rounded-lg border border-border bg-muted/10 px-4 py-3 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Child #{i + 1}
-          </p>
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Child #{i + 1}</p>
           {changed.map((f) => (
             <FieldChange key={f} fieldKey={f} oldVal={o?.[f]} newVal={n?.[f]} />
           ))}
@@ -232,38 +219,29 @@ function ChildrenDiff({ oldChildren, newChildren }: { oldChildren: any[]; newChi
   if (rows.length === 0) return null
   return (
     <div className="space-y-2">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-        Children
-      </p>
+      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Children</p>
       {rows}
     </div>
   )
 }
+
 // ── Generic array section diff ────────────────────────────────────
-function ArraySectionDiff({
-  oldArr,newArr,itemLabel,
-}: {
-  oldArr: any[]
-  newArr: any[]
-  itemLabel: string
-}) {
+function ArraySectionDiff({ oldArr, newArr, itemLabel }: { oldArr: any[]; newArr: any[]; itemLabel: string }) {
   const old_ = oldArr ?? []
   const new_ = newArr ?? []
   const fields = autoFields(old_, new_)
   const maxLen = Math.max(old_.length, new_.length)
   if (maxLen === 0) return null
   const rows: React.ReactNode[] = []
+
   for (let i = 0; i < maxLen; i++) {
     const o = old_[i]
     const n = new_[i]
 
-    // ── Added ──
     if (!o && n) {
       rows.push(
         <div key={i} className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
-          <p className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
-            + {itemLabel} #{i + 1} Added
-          </p>
+          <p className="text-xs font-bold text-primary uppercase tracking-wider mb-2">+ {itemLabel} #{i + 1} Added</p>
           <div className="space-y-1">
             {fields.map((f) =>
               n[f] !== null && n[f] !== undefined && n[f] !== "" ? (
@@ -278,13 +256,10 @@ function ArraySectionDiff({
       )
       continue
     }
-    // ── Removed ──
     if (o && !n) {
       rows.push(
         <div key={i} className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3">
-          <p className="text-xs font-bold text-destructive uppercase tracking-wider mb-2">
-            − {itemLabel} #{i + 1} Removed
-          </p>
+          <p className="text-xs font-bold text-destructive uppercase tracking-wider mb-2">− {itemLabel} #{i + 1} Removed</p>
           <div className="space-y-1">
             {fields.map((f) =>
               o[f] !== null && o[f] !== undefined && o[f] !== "" ? (
@@ -299,16 +274,11 @@ function ArraySectionDiff({
       )
       continue
     }
-    // ── Modified — only changed fields ──
-    const changedFields = fields.filter(
-      (f) => JSON.stringify(o?.[f]) !== JSON.stringify(n?.[f])
-    )
+    const changedFields = fields.filter((f) => JSON.stringify(o?.[f]) !== JSON.stringify(n?.[f]))
     if (changedFields.length > 0) {
       rows.push(
         <div key={i} className="rounded-lg border border-border bg-muted/10 px-4 py-3 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            {itemLabel} #{i + 1}
-          </p>
+          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{itemLabel} #{i + 1}</p>
           {changedFields.map((f) => (
             <FieldChange key={f} fieldKey={f} oldVal={o?.[f]} newVal={n?.[f]} />
           ))}
@@ -319,145 +289,153 @@ function ArraySectionDiff({
   if (rows.length === 0) return null
   return <div className="space-y-3">{rows}</div>
 }
-// ── Specialized questions diff (handles answer + details together) ──
-const normalizeBool = (val: any) => val === true || val === "true";
+
+// ── Questions diff ────────────────────────────────────────────────
+const normalizeBool = (val: any) => val === true || val === "true"
+
 function QuestionsDiff({ oldArr, newArr }: { oldArr: any[]; newArr: any[] }) {
   const old_ = oldArr ?? []
   const new_ = newArr ?? []
   const rows = []
+
   for (let i = 0; i < Math.max(old_.length, new_.length); i++) {
     const o = old_[i]
     const n = new_[i]
     if (!o || !n) continue
     const changed =
       normalizeBool(o.answer) !== normalizeBool(n.answer) ||
-      o.answer_details !== n.answer_details;
-
+      o.answer_details !== n.answer_details
     if (!changed) continue
-    
+
     rows.push(
       <div key={i} className="rounded-lg border border-border bg-muted/10 px-4 py-3 space-y-3">
         <p className="text-xs font-bold text-muted-foreground">
-          Q{n.questions?.pds_no}: {n.questions?.question}</p>
-
-        <FieldChange fieldKey="answer"oldVal={o.answer}newVal={n.answer}/>
+          Q{n.questions?.pds_no}: {n.questions?.question}
+        </p>
+        <FieldChange fieldKey="answer" oldVal={o.answer} newVal={n.answer} />
         {o.answer_details !== n.answer_details && (
-          <FieldChange fieldKey="answer_details"oldVal={o.answer_details}newVal={n.answer_details}/>)}
+          <FieldChange fieldKey="answer_details" oldVal={o.answer_details} newVal={n.answer_details} />
+        )}
       </div>
     )
   }
   if (rows.length === 0) return null
-
   return <div className="space-y-3">{rows}</div>
 }
-// ── Detect changes in Additional Questions ──
+
+// ── Detect changes in Additional Questions ────────────────────────
 const hasAddtlChanges = (oldArr: any[], newArr: any[]) => {
   const maxLen = Math.max(oldArr?.length || 0, newArr?.length || 0)
-
   for (let i = 0; i < maxLen; i++) {
     const o = oldArr?.[i]
     const n = newArr?.[i]
-
-    // Added or removed
     if (!o || !n) return true
-
-    // Field changes
-   if (
+    if (
       normalizeBool(o.answer) !== normalizeBool(n.answer) ||
       o.answer_details !== n.answer_details
-    ) return true;
+    ) return true
   }
   return false
 }
-function generateSuggestions(oldData: any, newData: any): string[] {
-  if (!oldData || !newData) return []
-  const suggestions: string[] = []
-  const personalKeys = [
-    "firstname","middlename","surname","name_ext","birthdate","birthplace","sex","civil_status","blood_type","height","weight",
-    "mobile_no","email_address","telephone_no","citizenship","citizenship_category","citizenship_country",
-    "ra_house_block_lotno","ra_street","ra_subdivision_village","ra_barangay","ra_city_municipality","ra_province","ra_zipcode",
-    "pa_house_block_lotno","pa_street","pa_subdivision_village","pa_barangay","pa_city_municipality","pa_province","pa_zipcode",
-  ]
-  const nameFields    = ["firstname","middlename","surname","name_ext"]
-  const contactFields = ["mobile_no","email_address","telephone_no"]
-  const addressFields = personalKeys.filter(k => k.startsWith("ra_") || k.startsWith("pa_"))
-  const personalOther = ["sex","civil_status","blood_type","height","weight","birthdate","birthplace","citizenship","citizenship_category","citizenship_country"]
-  const changedPersonal = personalKeys.filter(k => JSON.stringify(oldData[k]) !== JSON.stringify(newData[k]))
-  const changedNames    = changedPersonal.filter(k => nameFields.includes(k))
-  const changedContacts = changedPersonal.filter(k => contactFields.includes(k))
-  const changedAddress  = changedPersonal.filter(k => addressFields.includes(k))
-  const changedOther    = changedPersonal.filter(k => personalOther.includes(k))
-  if (changedNames.length > 0)
-    suggestions.push(`Updating name information: ${changedNames.map(toLabel).join(", ")}`)
-  if (changedContacts.length > 0)
-    suggestions.push(`Updating contact details: ${changedContacts.map(toLabel).join(", ")}`)
-  if (changedAddress.length > 0)
-    suggestions.push("Updating residential/permanent address information")
-  if (changedOther.length > 0)
-    suggestions.push(`Correcting personal information: ${changedOther.map(toLabel).join(", ")}`)
-  if (JSON.stringify(oldData.family) !== JSON.stringify(newData.family))
-    suggestions.push("Updating family background and spouse/parent information")
-  if (JSON.stringify(oldData.emp_education) !== JSON.stringify(newData.emp_education))
-    suggestions.push("Updating educational background records")
-  if (JSON.stringify(oldData.emp_work_exp) !== JSON.stringify(newData.emp_work_exp))
-    suggestions.push("Updating work experience history")
-  if (JSON.stringify(oldData.emp_eligibility) !== JSON.stringify(newData.emp_eligibility))
-    suggestions.push("Updating civil service eligibility records")
-  if (JSON.stringify(oldData.emp_voluntary_work) !== JSON.stringify(newData.emp_voluntary_work))
-    suggestions.push("Updating voluntary work and community service")
-  if (JSON.stringify(oldData.emp_ldinterventions) !== JSON.stringify(newData.emp_ldinterventions))
-    suggestions.push("Updating learning & development interventions")
-  const normBool = (v: any) => v === true || v === "true"
-  const addtlChanged = (oldData.emp_addtl ?? []).some((o: any, i: number) => {
-    const n = (newData.emp_addtl ?? [])[i]
-    return n && (normBool(o.answer) !== normBool(n.answer) || o.answer_details !== n.answer_details)
-  })
-  if (addtlChanged) suggestions.push("Updating answers to additional PDS questions")
-  if (JSON.stringify(oldData.emp_skills) !== JSON.stringify(newData.emp_skills))
-    suggestions.push("Updating special skills and hobbies")
-  if (JSON.stringify(oldData.emp_recognitions) !== JSON.stringify(newData.emp_recognitions))
-    suggestions.push("Updating non-academic distinctions/recognitions")
-  if (JSON.stringify(oldData.emp_memberships) !== JSON.stringify(newData.emp_memberships))
-    suggestions.push("Updating membership in associations/organizations")
-  if (JSON.stringify(oldData.emp_references) !== JSON.stringify(newData.emp_references))
-    suggestions.push("Updating character references")
-  if (JSON.stringify(oldData.emp_identifications) !== JSON.stringify(newData.emp_identifications))
-    suggestions.push("Updating government-issued identification documents")
-  if (suggestions.length >= 4)
-    suggestions.unshift("General profile update — multiple sections modified")
-  return suggestions
-}
-// ── MAIN ──────────────────────────────────────────────────────────
-export default function ReviewChanges({ open, oldData, newData, onCancel, onConfirm, description, onDescriptionChange }: Props) {
-  if (!oldData || !newData) return null
-  const suggestions = generateSuggestions(oldData, newData) ?? []
+
+// ── Auto-generate section-based description ───────────────────────
+function generateAutoDescription(oldData: any, newData: any): string {
+  if (!oldData || !newData) return ""
+
+  const sections: string[] = []
 
   const personalKeys = [
     "firstname","middlename","surname","name_ext","birthdate","birthplace","sex","civil_status","blood_type","height","weight",
     "mobile_no","email_address","telephone_no","citizenship","citizenship_category","citizenship_country",
     "ra_house_block_lotno","ra_street","ra_subdivision_village","ra_barangay","ra_city_municipality","ra_province","ra_zipcode",
     "pa_house_block_lotno","pa_street","pa_subdivision_village","pa_barangay","pa_city_municipality","pa_province","pa_zipcode",
-    
+    "gsis_no", "pagibig_no", "philhealth_no", "sss_no", "tin_no", "agency_emp_no",
   ]
-  const changedPersonal = personalKeys.filter(
-    (k) => JSON.stringify(oldData[k]) !== JSON.stringify(newData[k])
+
+  if (personalKeys.some(k => JSON.stringify(oldData[k]) !== JSON.stringify(newData[k])))
+    sections.push("Personal Information")
+
+  if (JSON.stringify(oldData.family) !== JSON.stringify(newData.family))
+    sections.push("Family Background")
+
+  if (JSON.stringify(oldData.emp_education) !== JSON.stringify(newData.emp_education))
+    sections.push("Education")
+
+  if (JSON.stringify(oldData.emp_work_exp) !== JSON.stringify(newData.emp_work_exp))
+    sections.push("Work Experience")
+
+  if (JSON.stringify(oldData.emp_eligibility) !== JSON.stringify(newData.emp_eligibility))
+    sections.push("Eligibility")
+
+  if (JSON.stringify(oldData.emp_voluntary_work) !== JSON.stringify(newData.emp_voluntary_work))
+    sections.push("Voluntary Work")
+
+  if (JSON.stringify(oldData.emp_ldinterventions) !== JSON.stringify(newData.emp_ldinterventions))
+    sections.push("Learning & Development")
+
+  const addtlChanged = (oldData.emp_addtl ?? []).some((o: any, i: number) => {
+    const n = (newData.emp_addtl ?? [])[i]
+    return n && (normalizeBool(o.answer) !== normalizeBool(n.answer) || o.answer_details !== n.answer_details)
+  })
+  if (
+    addtlChanged ||
+    JSON.stringify(oldData.emp_skills) !== JSON.stringify(newData.emp_skills) ||
+    JSON.stringify(oldData.emp_recognitions) !== JSON.stringify(newData.emp_recognitions) ||
+    JSON.stringify(oldData.emp_memberships) !== JSON.stringify(newData.emp_memberships) ||
+    JSON.stringify(oldData.emp_references) !== JSON.stringify(newData.emp_references) ||
+    JSON.stringify(oldData.emp_identifications) !== JSON.stringify(newData.emp_identifications)
   )
-  const familyChanged      = JSON.stringify(oldData.family)            !== JSON.stringify(newData.family)
-  const educationChanged   = JSON.stringify(oldData.emp_education)     !== JSON.stringify(newData.emp_education)
-  const workChanged        = JSON.stringify(oldData.emp_work_exp)      !== JSON.stringify(newData.emp_work_exp)
-  const eligibilityChanged = JSON.stringify(oldData.emp_eligibility)   !== JSON.stringify(newData.emp_eligibility)
-  const voluntaryChanged   = JSON.stringify(oldData.emp_voluntary_work)!== JSON.stringify(newData.emp_voluntary_work)
-  const ldChanged          = JSON.stringify(oldData.emp_ldinterventions)!==JSON.stringify(newData.emp_ldinterventions)
-const otherInfoChanged =
-  hasAddtlChanges(oldData.emp_addtl ?? [], newData.emp_addtl ?? []) ||
-  JSON.stringify(oldData.emp_skills ?? []) !== JSON.stringify(newData.emp_skills ?? []) ||
-  JSON.stringify(oldData.emp_recognitions ?? []) !== JSON.stringify(newData.emp_recognitions ?? []) ||
-  JSON.stringify(oldData.emp_memberships ?? []) !== JSON.stringify(newData.emp_memberships ?? []) ||
-  JSON.stringify(oldData.emp_references ?? []) !== JSON.stringify(newData.emp_references ?? []) ||
-  JSON.stringify(oldData.emp_identifications ?? []) !== JSON.stringify(newData.emp_identifications ?? []);
+    sections.push("Other Information")
+
+  if (sections.length === 0) return ""
+  if (sections.length === 1) return `Updating ${sections[0]}`
+  const last = sections[sections.length - 1]
+  const rest = sections.slice(0, -1)
+  return `Updating ${rest.join(", ")} and ${last}`
+}
+
+// ── MAIN ──────────────────────────────────────────────────────────
+export default function ReviewChanges({
+  open, oldData, newData, onCancel, onConfirm, description, onDescriptionChange,
+}: Props) {
+  // ⚠️ useEffect MUST come before any early return — React rules of hooks
+  useEffect(() => {
+    if (open && oldData && newData) {
+      const auto = generateAutoDescription(oldData, newData)
+      if (auto) onDescriptionChange(auto)
+    }
+  }, [open])
+
+  if (!oldData || !newData) return null
+
+  const personalKeys = [
+    "firstname","middlename","surname","name_ext","birthdate","birthplace","sex","civil_status","blood_type","height","weight",
+    "mobile_no","email_address","telephone_no","citizenship","citizenship_category","citizenship_country",
+    "ra_house_block_lotno","ra_street","ra_subdivision_village","ra_barangay","ra_city_municipality","ra_province","ra_zipcode",
+    "pa_house_block_lotno","pa_street","pa_subdivision_village","pa_barangay","pa_city_municipality","pa_province","pa_zipcode",
+    "gsis_no", "pagibig_no", "philhealth_no", "sss_no", "tin_no", "agency_emp_no"
+  ]
+
+  const changedPersonal     = personalKeys.filter(k => JSON.stringify(oldData[k]) !== JSON.stringify(newData[k]))
+  const familyChanged       = JSON.stringify(oldData.family)              !== JSON.stringify(newData.family)
+  const educationChanged    = JSON.stringify(oldData.emp_education)       !== JSON.stringify(newData.emp_education)
+  const workChanged         = JSON.stringify(oldData.emp_work_exp)        !== JSON.stringify(newData.emp_work_exp)
+  const eligibilityChanged  = JSON.stringify(oldData.emp_eligibility)     !== JSON.stringify(newData.emp_eligibility)
+  const voluntaryChanged    = JSON.stringify(oldData.emp_voluntary_work)  !== JSON.stringify(newData.emp_voluntary_work)
+  const ldChanged           = JSON.stringify(oldData.emp_ldinterventions) !== JSON.stringify(newData.emp_ldinterventions)
+
+  const otherInfoChanged =
+    hasAddtlChanges(oldData.emp_addtl ?? [], newData.emp_addtl ?? []) ||
+    JSON.stringify(oldData.emp_skills ?? [])         !== JSON.stringify(newData.emp_skills ?? []) ||
+    JSON.stringify(oldData.emp_recognitions ?? [])   !== JSON.stringify(newData.emp_recognitions ?? []) ||
+    JSON.stringify(oldData.emp_memberships ?? [])    !== JSON.stringify(newData.emp_memberships ?? []) ||
+    JSON.stringify(oldData.emp_references ?? [])     !== JSON.stringify(newData.emp_references ?? []) ||
+    JSON.stringify(oldData.emp_identifications ?? [])!== JSON.stringify(newData.emp_identifications ?? [])
+
   const hasAnyChange =
     changedPersonal.length > 0 || familyChanged || educationChanged ||
     workChanged || eligibilityChanged || voluntaryChanged || ldChanged || otherInfoChanged
+
   return (
     <Dialog open={open} onOpenChange={onCancel}>
       <DialogContent className="flex flex-col h-[90vh] max-w-4xl p-0 gap-0 bg-card text-card-foreground border-border">
@@ -469,6 +447,7 @@ const otherInfoChanged =
             Please verify the following modifications before submitting.
           </p>
         </DialogHeader>
+
         {/* Body */}
         <div className="flex-1 overflow-hidden p-6">
           <ScrollArea className="h-full w-full pr-4">
@@ -479,6 +458,7 @@ const otherInfoChanged =
                   No changes detected.
                 </div>
               )}
+
               {changedPersonal.length > 0 && (
                 <SectionCard title="Personal Information">
                   {changedPersonal.map((k) => (
@@ -489,104 +469,105 @@ const otherInfoChanged =
 
               {familyChanged && (
                 <SectionCard title="Family Background">
-                  <FlatObjectDiff oldObj={oldData.family}newObj={newData.family}skipKeys={["emp_children"]}/>
-                  {JSON.stringify(oldData.family?.emp_children) !==JSON.stringify(newData.family?.emp_children) && (
+                  <FlatObjectDiff oldObj={oldData.family} newObj={newData.family} skipKeys={["emp_children"]} />
+                  {JSON.stringify(oldData.family?.emp_children) !== JSON.stringify(newData.family?.emp_children) && (
                     <div className="pt-2 border-t border-border">
-                      <ChildrenDiff oldChildren={oldData.family?.emp_children}newChildren={newData.family?.emp_children} />
+                      <ChildrenDiff
+                        oldChildren={oldData.family?.emp_children}
+                        newChildren={newData.family?.emp_children}
+                      />
                     </div>
                   )}
                 </SectionCard>
               )}
+
               {educationChanged && (
                 <SectionCard title="Education">
-                  <ArraySectionDiff oldArr={oldData.emp_education}newArr={newData.emp_education}itemLabel="Education"/>
+                  <ArraySectionDiff oldArr={oldData.emp_education} newArr={newData.emp_education} itemLabel="Education" />
                 </SectionCard>
               )}
+
               {workChanged && (
                 <SectionCard title="Work Experience">
-                  <ArraySectionDiff oldArr={oldData.emp_work_exp}newArr={newData.emp_work_exp}itemLabel="Work"/>
+                  <ArraySectionDiff oldArr={oldData.emp_work_exp} newArr={newData.emp_work_exp} itemLabel="Work" />
                 </SectionCard>
               )}
+
               {eligibilityChanged && (
                 <SectionCard title="Eligibility">
-                  <ArraySectionDiff oldArr={oldData.emp_eligibility}newArr={newData.emp_eligibility}itemLabel="Eligibility"/>
+                  <ArraySectionDiff oldArr={oldData.emp_eligibility} newArr={newData.emp_eligibility} itemLabel="Eligibility" />
                 </SectionCard>
               )}
+
               {voluntaryChanged && (
                 <SectionCard title="Voluntary Work">
-                  <ArraySectionDiff oldArr={oldData.emp_voluntary_work}newArr={newData.emp_voluntary_work}itemLabel="Voluntary Work"/>
+                  <ArraySectionDiff oldArr={oldData.emp_voluntary_work} newArr={newData.emp_voluntary_work} itemLabel="Voluntary Work" />
                 </SectionCard>
               )}
+
               {ldChanged && (
                 <SectionCard title="Learning & Development">
-                  <ArraySectionDiff oldArr={oldData.emp_ldinterventions}newArr={newData.emp_ldinterventions}itemLabel="L&D"/>
+                  <ArraySectionDiff oldArr={oldData.emp_ldinterventions} newArr={newData.emp_ldinterventions} itemLabel="L&D" />
                 </SectionCard>
               )}
+
               {otherInfoChanged && (
                 <SectionCard title="Other Information">
-                  {/* Additional Questions */}
                   {hasAddtlChanges(oldData.emp_addtl, newData.emp_addtl) && (
                     <div>
                       <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
                         Additional Questions
                       </p>
-                      <QuestionsDiff oldArr={oldData.emp_addtl}newArr={newData.emp_addtl}/>
+                      <QuestionsDiff oldArr={oldData.emp_addtl} newArr={newData.emp_addtl} />
                     </div>
                   )}
-
-                  {/* Skills */}
                   {JSON.stringify(oldData.emp_skills) !== JSON.stringify(newData.emp_skills) && (
                     <div>
                       <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
                         Skills & Hobbies
                       </p>
-                      <ArraySectionDiff oldArr={oldData.emp_skills}newArr={newData.emp_skills}itemLabel="Skill"/>
+                      <ArraySectionDiff oldArr={oldData.emp_skills} newArr={newData.emp_skills} itemLabel="Skill" />
                     </div>
                   )}
-
-                  {/* Recognitions */}
                   {JSON.stringify(oldData.emp_recognitions) !== JSON.stringify(newData.emp_recognitions) && (
                     <div>
                       <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
                         Recognitions
                       </p>
-                      <ArraySectionDiff oldArr={oldData.emp_recognitions}newArr={newData.emp_recognitions}itemLabel="Recognition"/>
+                      <ArraySectionDiff oldArr={oldData.emp_recognitions} newArr={newData.emp_recognitions} itemLabel="Recognition" />
                     </div>
                   )}
-
-                  {/* Memberships */}
                   {JSON.stringify(oldData.emp_memberships) !== JSON.stringify(newData.emp_memberships) && (
                     <div>
                       <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
                         Memberships
                       </p>
-                      <ArraySectionDiff oldArr={oldData.emp_memberships}newArr={newData.emp_memberships}itemLabel="Membership"/>
+                      <ArraySectionDiff oldArr={oldData.emp_memberships} newArr={newData.emp_memberships} itemLabel="Membership" />
                     </div>
                   )}
-
-                  {/* References */}
                   {JSON.stringify(oldData.emp_references) !== JSON.stringify(newData.emp_references) && (
                     <div>
                       <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
                         References
                       </p>
-                      <ArraySectionDiff oldArr={oldData.emp_references}newArr={newData.emp_references}itemLabel="Reference"/>
+                      <ArraySectionDiff oldArr={oldData.emp_references} newArr={newData.emp_references} itemLabel="Reference" />
                     </div>
                   )}
-                  {/* IDs */}
                   {JSON.stringify(oldData.emp_identifications) !== JSON.stringify(newData.emp_identifications) && (
                     <div>
                       <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
                         Government IDs
                       </p>
-                      <ArraySectionDiff oldArr={oldData.emp_identifications}newArr={newData.emp_identifications}itemLabel="ID"/>
+                      <ArraySectionDiff oldArr={oldData.emp_identifications} newArr={newData.emp_identifications} itemLabel="ID" />
                     </div>
                   )}
                 </SectionCard>
               )}
+
             </div>
           </ScrollArea>
         </div>
+
         {/* Footer */}
         <DialogFooter className="flex-col gap-3 px-6 py-4 border-t border-border bg-muted/20 shrink-0">
           <div className="w-full space-y-2">
@@ -596,27 +577,6 @@ const otherInfoChanged =
                 Change Description <span className="text-destructive">*</span>
               </label>
             </div>
-            {suggestions.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                <span className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium mr-1 shrink-0">
-                  <Sparkles className="w-3 h-3 text-amber-400" /> Suggestions:
-                </span>
-                {suggestions.map((s, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => onDescriptionChange(s)}
-                    className={`text-[11px] px-2.5 py-1 rounded-full border transition-all duration-150 font-medium ${
-                      description === s
-                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                        : "bg-background text-muted-foreground border-border hover:border-primary/50 hover:text-foreground hover:bg-primary/5"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            )}
             <textarea
               value={description}
               onChange={e => onDescriptionChange(e.target.value)}
@@ -634,11 +594,16 @@ const otherInfoChanged =
           </div>
           <div className="flex items-center justify-end gap-3 w-full">
             <Button variant="outline" onClick={onCancel} className="border-border">Cancel</Button>
-            <Button onClick={onConfirm} disabled={!description.trim()} className="disabled:opacity-50 disabled:cursor-not-allowed">
+            <Button
+              onClick={onConfirm}
+              disabled={!description.trim()}
+              className="disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               Confirm & Submit
             </Button>
           </div>
         </DialogFooter>
+
       </DialogContent>
     </Dialog>
   )

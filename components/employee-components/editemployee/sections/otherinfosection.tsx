@@ -429,21 +429,21 @@ export default function OtherInfoSection({
             </SubSection>
 
             {/* ✅ emp_recognitions */}
-            <SubSection label="Non-Academic Recognitions"Icon={Trophy}
+            <SubSection label="Non-Academic Distinction / Recognitions"Icon={Trophy}
               iconGradient="from-blue-500 to-blue-600"count={(formData.emp_recognitions ?? []).length}isOpen={!!openSub.recognitions}onToggle={() => toggleSub("recognitions")}>
               <ListEditor section="emp_recognitions"records={formData.emp_recognitions ?? []}idKey="recognition_id"placeholder="Recognition or distinction"addLabel="Add Recognition"
               onArrayChange={onArrayChange}onAdd={onAdd} onDelete={onDelete}blank={BLANK_RECOGNITION}/>
             </SubSection>
 
             {/* ✅ emp_memberships */}
-            <SubSection label="Organization Memberships"Icon={Users}iconGradient="from-emerald-500 to-emerald-600"count={(formData.emp_memberships ?? []).length}isOpen={!!openSub.memberships}
+            <SubSection label="Association / Organization Memberships"Icon={Users}iconGradient="from-emerald-500 to-emerald-600"count={(formData.emp_memberships ?? []).length}isOpen={!!openSub.memberships}
               onToggle={() => toggleSub("memberships")}>
               <ListEditor section="emp_memberships"records={formData.emp_memberships ?? []}idKey="membership_id"placeholder="Organization name"addLabel="Add Membership"
               onArrayChange={onArrayChange}onAdd={onAdd}onDelete={onDelete}blank={BLANK_MEMBERSHIP}/>
             </SubSection>
 
             {/* ✅ emp_references — read-only */}
-            <SubSection label="Personal References"Icon={User}iconGradient="from-orange-500 to-orange-600"count={(formData.emp_references ?? []).length}isOpen={!!openSub.references}
+            <SubSection label="References (Person not related by consanguinity or affinity to applicant /appointee)"Icon={User}iconGradient="from-orange-500 to-orange-600"count={(formData.emp_references ?? []).length}isOpen={!!openSub.references}
               onToggle={() => toggleSub("references")}>
               <ReferencesEditor references={formData.emp_references ?? []}onArrayChange={onArrayChange}onAdd={onAdd}onDelete={onDelete}/>
             </SubSection>

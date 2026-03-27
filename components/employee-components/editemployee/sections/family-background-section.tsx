@@ -14,7 +14,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-const CHILD_STATUS_OPTIONS = ["ACTIVE", "INACTIVE"];
+const CHILD_STATUS_OPTIONS = ["DECEASED", "ALIVE"];
 const BLANK_CHILD = { children_id: "", child_name: "", child_birthdate: "", status: "" };
 
 interface FamilyBackgroundSectionProps {
