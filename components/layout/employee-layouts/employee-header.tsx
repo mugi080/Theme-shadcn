@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
-import { ModeToggle } from "./toggle-mode"
+import { ModeToggle } from "../toggle-mode"
 
 export function Header() {
   const pathname = usePathname()

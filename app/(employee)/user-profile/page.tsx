@@ -10,7 +10,7 @@ import VoluntaryWorkSectionUI from "@/components/employee-components/personal-in
 import LDInterventionSectionUI from "@/components/employee-components/personal-info-employee/learning&development-ui";
 import AdditionalInfoSectionUI from "@/components/employee-components/personal-info-employee/add-info-wrapper";
 import EmployeeCard from "@/components/employee-components/personal-info-employee/employee-card-ui";
-import { EmployeeTabs } from "@/components/layout/employee-tabs";
+import { EmployeeTabs } from "@/components/layout/employee-layouts/employee-tabs";
 
 import {
   User,
