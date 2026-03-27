@@ -1,21 +1,19 @@
+// components/sections/FeaturesSection.tsx (Updated usage)
 "use client";
 
 import {
-  Users, FileText, BarChart3, Shield, ClipboardList, Award,
+  Users, FileText, BarChart3, Shield, ClipboardList, Award, ArrowRight,
 } from "lucide-react";
 import FlipCard from "./Flipcard";
-import { Theme, ACCENT } from "@/lib/constants";
-
-// ─── Props ────────────────────────────────────────────────────────────────────
+/* Shadcn UI Primitives */
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface FeaturesSectionProps {
-  t: Theme;
+  className?: string;
 }
 
 // ─── Features data ────────────────────────────────────────────────────────────
-// Defined locally so icon components are real Lucide components, not strings.
-// constants.ts keeps iconKey strings for non-React contexts (server, tests).
-
 const FEATURES = [
   {
     icon: Users,
@@ -24,7 +22,7 @@ const FEATURES = [
     image: "/employeerecord.jpg",
     tag: "Employee Records",
     backTitle: "Your Complete Profile",
-    backColor: "#1565C0",
+    backColor: "bg-primary",
     details: [
       "View & update your Personal Data Sheet (CS Form 212)",
       "Access your full employment history and appointments",
@@ -39,7 +37,7 @@ const FEATURES = [
     image: "/leave.jpg",
     tag: "Leave Management",
     backTitle: "Hassle-Free Leave Filing",
-    backColor: "#1565C0",
+    backColor: "bg-cyan-600",
     details: [
       "File vacation, sick, maternity, and other leave types online",
       "Track real-time approval status of your requests",
@@ -54,7 +52,7 @@ const FEATURES = [
     image: "/Attendance.jpg",
     tag: "Attendance Tracking",
     backTitle: "Always Know Your Status",
-    backColor: "#1565C0",
+    backColor: "bg-violet-600",
     details: [
       "View your daily time-in and time-out records",
       "Monitor tardiness, absences, and undertime at a glance",
@@ -69,7 +67,7 @@ const FEATURES = [
     image: "/payroll.jpg",
     tag: "Payroll System",
     backTitle: "Transparent Pay Management",
-    backColor: "#1565C0",
+    backColor: "bg-emerald-600",
     details: [
       "View detailed payslips with all deductions and allowances",
       "Track GSIS, PhilHealth, and Pag-IBIG contributions",
@@ -84,7 +82,7 @@ const FEATURES = [
     image: "/loan.jpg",
     tag: "Loans & Benefits",
     backTitle: "Benefits at Your Fingertips",
-    backColor: "#1565C0",
+    backColor: "bg-amber-600",
     details: [
       "Monitor outstanding GSIS and Pag-IBIG loan balances",
       "Apply for government loans directly through the portal",
@@ -99,7 +97,7 @@ const FEATURES = [
     image: "/securecomp.jpg",
     tag: "Secure & Compliant",
     backTitle: "Your Data Is Protected",
-    backColor: "#1565C0",
+    backColor: "bg-rose-600",
     details: [
       "Fully compliant with the Data Privacy Act of 2012 (RA 10173)",
       "Role-based access control for all HR data",
@@ -110,50 +108,26 @@ const FEATURES = [
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
-
-export default function FeaturesSection({ t }: FeaturesSectionProps) {
+export default function FeaturesSection({ className = "" }: FeaturesSectionProps) {
   return (
-    <section id="features" className="py-20 px-4 sm:px-6" style={{ backgroundColor: t.bg }}>
-
-      {/* Flip card CSS — scoped here, consumed by FlipCard class names */}
-      <style>{`
-        .flip-card { perspective: 1400px; cursor: default; }
-        .flip-inner {
-          position: relative; width: 100%; height: 100%;
-          transform-style: preserve-3d;
-          transition: transform 0.75s cubic-bezier(0.4,0.2,0.2,1);
-        }
-        .flip-card:hover .flip-inner { transform: rotateY(180deg); }
-        .flip-front, .flip-back {
-          position: absolute; width: 100%; height: 100%;
-          backface-visibility: hidden; -webkit-backface-visibility: hidden;
-          border-radius: 1rem; overflow: hidden;
-        }
-        .flip-back  { transform: rotateY(180deg); }
-        .flip-img   { transition: transform 0.75s ease; }
-        .flip-card:hover .flip-img  { transform: scale(1.07); }
-        .flip-hint  { opacity: 0.85; transition: opacity 0.3s; }
-        .flip-card:hover .flip-hint { opacity: 0; pointer-events: none; }
-      `}</style>
-
+    <section id="features" className={`py-20 px-4 sm:px-6 bg-muted/30 ${className}`}>
       <div className="max-w-7xl mx-auto">
-
         {/* Section heading */}
         <div className="text-center mb-14">
           <div className="flex items-center justify-center gap-2 mb-3">
-            <div className="w-8 h-0.5" style={{ backgroundColor: ACCENT }} />
-            <span className="text-xs font-bold uppercase tracking-widest" style={{ color: ACCENT }}>
+            <div className="w-8 h-0.5 bg-primary" />
+            <Badge variant="secondary" className="text-xs font-bold uppercase tracking-widest text-primary bg-primary/10 hover:bg-primary/15 border-0">
               Features
-            </span>
-            <div className="w-8 h-0.5" style={{ backgroundColor: ACCENT }} />
+            </Badge>
+            <div className="w-8 h-0.5 bg-primary" />
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black" style={{ color: t.text }}>
+          <h2 className="text-3xl sm:text-4xl font-black text-foreground">
             Everything You Need
           </h2>
-          <p className="mt-3 max-w-xl mx-auto text-sm sm:text-base" style={{ color: t.muted }}>
+          <p className="mt-3 max-w-xl mx-auto text-sm sm:text-base text-muted-foreground">
             A complete HR ecosystem built for city government employees and administrators.
           </p>
-          <p className="mt-2 text-xs" style={{ color: t.muted }}>
+          <p className="mt-2 text-xs text-muted-foreground">
             ✦ Hover any card to see how it helps you
           </p>
         </div>
@@ -163,7 +137,7 @@ export default function FeaturesSection({ t }: FeaturesSectionProps) {
           {FEATURES.map(feat => (
             <FlipCard
               key={feat.title}
-              icon={feat.icon}       // ← real Lucide component, never undefined
+              icon={feat.icon}
               title={feat.title}
               desc={feat.desc}
               image={feat.image}
@@ -171,12 +145,16 @@ export default function FeaturesSection({ t }: FeaturesSectionProps) {
               backTitle={feat.backTitle}
               backColor={feat.backColor}
               details={feat.details}
-              t={t}
-              accent={ACCENT}
             />
           ))}
         </div>
 
+        {/* View All Features CTA */}
+        <div className="text-center mt-12">
+          <Button variant="outline" size="lg" className="h-11 px-8 text-sm font-semibold rounded-lg border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors">
+            View All Features <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
       </div>
     </section>
   );

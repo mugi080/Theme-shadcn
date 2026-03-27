@@ -13,9 +13,9 @@ import {
   CircleUser
 } from "lucide-react"
 
-import { NavMain } from "@/components/layout/nav-main"
-import { NavProjects } from "@/components/layout/nav-projects"
-import { NavUser } from "@/components/layout/nav-user"
+import { NavMain } from "@/components/layout/employee-layouts/nav-main"
+import { NavProjects } from "@/components/layout/employee-layouts/nav-projects"
+import { NavUser } from "@/components/layout/employee-layouts/nav-user"
 import { TeamSwitcher } from "@/components/layout/logo-title"
 import {
   Sidebar,

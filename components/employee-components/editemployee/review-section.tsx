@@ -30,6 +30,9 @@ const FIELD_LABELS: Record<string, string> = {
   pa_subdivision_village: "Permanent Subdivision/Village",         pa_barangay: "Permanent Barangay",
   pa_city_municipality: "Permanent City/Municipality",             pa_province: "Permanent Province",
   pa_zipcode: "Permanent Zip Code",
+  gsis_no: "GSIS No.",                pagibig_no: "PAG-IBIG No.",              philhealth_no: "PhilHealth No.",
+  sss_no: "SSS No.",                  tin_no: "TIN No.",                      agency_emp_no: "Agency Employee No.",
+
   // Family
   spouse_firstname: "Spouse First Name",     spouse_middlename: "Spouse Middle Name",      spouse_surname: "Spouse Last Name",
   spouse_name_ext: "Spouse Name Ext.",       spouse_occupation: "Spouse Occupation",
@@ -335,6 +338,7 @@ function generateAutoDescription(oldData: any, newData: any): string {
     "mobile_no","email_address","telephone_no","citizenship","citizenship_category","citizenship_country",
     "ra_house_block_lotno","ra_street","ra_subdivision_village","ra_barangay","ra_city_municipality","ra_province","ra_zipcode",
     "pa_house_block_lotno","pa_street","pa_subdivision_village","pa_barangay","pa_city_municipality","pa_province","pa_zipcode",
+    "gsis_no", "pagibig_no", "philhealth_no", "sss_no", "tin_no", "agency_emp_no",
   ]
 
   if (personalKeys.some(k => JSON.stringify(oldData[k]) !== JSON.stringify(newData[k])))
@@ -398,6 +402,7 @@ export default function ReviewChanges({
     "mobile_no","email_address","telephone_no","citizenship","citizenship_category","citizenship_country",
     "ra_house_block_lotno","ra_street","ra_subdivision_village","ra_barangay","ra_city_municipality","ra_province","ra_zipcode",
     "pa_house_block_lotno","pa_street","pa_subdivision_village","pa_barangay","pa_city_municipality","pa_province","pa_zipcode",
+    "gsis_no", "pagibig_no", "philhealth_no", "sss_no", "tin_no", "agency_emp_no"
   ]
 
   const changedPersonal     = personalKeys.filter(k => JSON.stringify(oldData[k]) !== JSON.stringify(newData[k]))

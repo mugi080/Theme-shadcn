@@ -7,10 +7,10 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { useIdleTimer } from "@/hooks/useIdleTimer";
 import { SessionWarning } from "@/components/layout/session-warning";
-import { Header } from "@/components/layout/employee-header";
+import { Header } from "@/components/layout/employee-layouts/employee-header";
 // ✅ Dynamic import for sidebar (avoids SSR issues with browser APIs)
 const AppSidebar = dynamic(
-  () => import("@/components/layout/app-sidebar").then((mod) => mod.AppSidebar),
+  () => import("@/components/layout/employee-layouts/app-sidebar").then((mod) => mod.AppSidebar),
   { ssr: false }
 );
 

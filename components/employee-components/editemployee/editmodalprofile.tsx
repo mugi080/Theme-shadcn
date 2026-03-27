@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { X, Loader2, CheckCircle2 } from "lucide-react";
 import { apiFetch } from "@/lib/api/personal-info/auth";
 
+
 /* Sections */
 import PersonalInfoSection from "./sections/personal-info";
 import FamilyBackgroundSection from "./sections/family-background-section";
@@ -45,8 +46,7 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Pro
   const [submitted, setSubmitted]         = useState(false);
   const [openSections, setOpenSections]   = useState<Record<string, boolean>>({
     personal: true,
-    family:   true,
-    other:    true,
+
   });
   const [showReview, setShowReview]       = useState(false);
   const [reviewPayload, setReviewPayload] = useState<any>(null);
@@ -142,6 +142,8 @@ export default function EditProfileModal({ initialData, onClose, onSubmit }: Pro
       "ra_city_municipality", "ra_province", "ra_zipcode",
       "pa_house_block_lotno", "pa_street", "pa_subdivision_village", "pa_barangay",
       "pa_city_municipality", "pa_province", "pa_zipcode",
+      "gsis_no", "pagibig_no", "philhealth_no", "sss_no", "tin_no", "agency_emp_no",
+
       "family", "emp_education", "emp_work_exp", "emp_eligibility",
       "emp_voluntary_work", "emp_ldinterventions",
       "emp_skills", "emp_recognitions", "emp_memberships",
