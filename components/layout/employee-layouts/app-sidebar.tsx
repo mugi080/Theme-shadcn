@@ -80,14 +80,17 @@ const data = {
       //   },
       // ],
     },
+    
     {
       title: "Leave Management",
-      url: "/leave",
+      url: "#",          
+      // url: "/leave",
       icon: BookOpen,
     },
     {
       title: "Appointments",
-      url: "/appointment",
+      url: "#",
+      // url: "/appointment",
       icon: Bot,
     },
     {
